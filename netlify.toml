@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# A planilha fica no repositório para rastreabilidade, mas não precisa
+# ser servida pelo site.
+[[redirects]]
+  from = "/dados/*"
+  to = "/index.html"
+  status = 404
