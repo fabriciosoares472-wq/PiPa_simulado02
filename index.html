@@ -40,8 +40,8 @@ select:focus,input:focus,button:focus-visible,tr[tabindex]:focus-visible,[role=b
 .btn{font-family:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--raio);border:1px solid var(--cinza-linha);background:transparent;color:var(--texto);cursor:pointer}
 .btn:hover{background:var(--vermelho);color:#fff;border-color:var(--vermelho)}
 
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-.kpi{background:var(--branco);border:1px solid var(--cinza-linha);border-left:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 12px;box-shadow:var(--sombra);min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:8px;margin-bottom:18px}
+.kpi{background:var(--branco);border:1px solid var(--cinza-linha);border-left:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 10px;box-shadow:var(--sombra);min-width:0}
 .kpi .rot{font-size:11px;font-weight:600;color:var(--texto-2);margin-bottom:2px}
 .kpi .val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;overflow-wrap:anywhere}
 .kpi .val.txt{font-size:17px;line-height:1.15;font-weight:600}
@@ -82,7 +82,7 @@ td.ctr,th.ctr{text-align:center}
 .calor thead th{font-size:10px;text-align:center;padding:2px 3px;white-space:normal;max-width:52px;line-height:1.15}
 .calor th.lat{text-align:left;white-space:nowrap;font-weight:500;font-size:12px;color:var(--texto);padding-right:8px;background:var(--branco);position:sticky;left:0;z-index:1}
 .calor td{border:0;padding:0;text-align:center}
-.cel{display:block;width:100%;min-width:46px;padding:5px 2px;color:#fff;font-weight:700;border-radius:2px;font-variant-numeric:tabular-nums}
+.cel{display:block;width:100%;min-width:50px;padding:5px 2px;color:#fff;font-weight:700;border-radius:2px;font-variant-numeric:tabular-nums}
 .legenda{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:var(--texto-2);margin-top:10px}
 .legenda i{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:4px;vertical-align:-2px}
 
@@ -102,9 +102,9 @@ td.ctr,th.ctr{text-align:center}
 .gab-row .n span:hover{color:var(--vermelho)}
 
 .faixas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
-.fx{border:1px solid var(--cinza-linha);border-top:3px solid;border-radius:var(--raio);padding:9px 11px}
-.fx .q{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;line-height:1}
-.fx .r{font-size:12px;font-weight:600} .fx .s{font-size:11px;color:var(--texto-2)}
+.fx{border:1px solid var(--cinza-linha);border-top:4px solid;border-radius:var(--raio);padding:12px 14px}
+.fx .q{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;line-height:1;margin:2px 0}
+.fx .r{font-size:15px;font-weight:700} .fx .s{font-size:13px;color:var(--texto-2)}
 
 .insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
 .ins{border:1px solid var(--cinza-linha);border-top:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 12px;background:var(--cinza-suave)}
@@ -361,25 +361,26 @@ function renderKpis(al){
   const el = document.getElementById('kpis');
   if (!al.length){ el.innerHTML = '<div class="kpi"><div class="rot">Sem resultados</div><div class="val">0</div><div class="sub">Ajuste os filtros</div></div>'; return; }
   const ms = al.map(metrica);
-  const notas = ms.map(m => m.nota).sort((a,b)=>a-b);
-  const media = notas.reduce((s,v)=>s+v,0)/notas.length;
-  const mediana = notas.length % 2 ? notas[(notas.length-1)/2] : (notas[notas.length/2-1]+notas[notas.length/2])/2;
+  const tot = ms[0].tot;
+  const acs = ms.map(m => m.ac).sort((a,b)=>a-b);
+  const mediaAc = acs.reduce((s,v)=>s+v,0)/acs.length;
+  const medianaAc = acs.length % 2 ? acs[(acs.length-1)/2] : (acs[acs.length/2-1]+acs[acs.length/2])/2;
   const pcMedio = ms.reduce((s,m)=>s+m.pc,0)/ms.length;
-  const acima = ms.filter(m => m.nota > media).length;
-  const maxN = Math.max(...notas), minN = Math.min(...notas);
-  const top = al.filter((a,i) => ms[i].nota === maxN);
+  const acima = ms.filter(m => m.ac > mediaAc).length;
+  const maxAc = acs[acs.length-1], minAc = acs[0];
+  const top = al.filter((a,i) => ms[i].ac === maxAc);
   const rotulo = estado.disc || 'prova completa';
 
   const dsc = DATA.disciplinas.map(d => ({ nome:d.nome, pc: pct(al.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0), (d.fim-d.ini+1)*al.length) })).sort((a,b)=>b.pc-a.pc);
 
   el.innerHTML = [
     ['neutro','Alunos no recorte', al.length, estado.turma || 'todas as turmas', 0],
-    ['','Nota média', f1(media), `escala 0–10 · ${rotulo}`, 0],
-    ['','Acertos médios', f1(pcMedio)+'%', `${f1(ms.reduce((s,m)=>s+m.ac,0)/ms.length)} de ${ms[0].tot} questões`, 0],
-    ['neutro','Mediana', f1(mediana), 'metade da turma acima disso', 0],
+    ['','Nota média', `${f1(mediaAc)}/${tot}`, `acertos · ${rotulo}`, 0],
+    ['','Acertos médios', f1(pcMedio)+'%', `${f1(mediaAc)} de ${tot} questões`, 0],
+    ['neutro','Mediana', `${f1(medianaAc)}/${tot}`, 'metade da turma acima disso', 0],
     ['ok','Acima da média', acima, `${f1(pct(acima,al.length))}% do recorte`, 0],
-    ['ok', top.length>1 ? 'Melhores alunos' : 'Melhor aluno', top.slice(0,3).map(a=>curto(a.n)).join(' · ') + (top.length>3?' +'+(top.length-3):''), `nota ${f1(maxN)}${top.length===1?' · '+esc(top[0].t):' · '+top.length+' empatados'}`, 1],
-    ['at','Menor nota', f1(minN), 'ponto de atenção', 0],
+    ['ok', top.length>1 ? 'Melhores alunos' : 'Melhor aluno', top.slice(0,3).map(a=>curto(a.n)).join(' · ') + (top.length>3?' +'+(top.length-3):''), `${maxAc}/${tot}${top.length===1?' · '+esc(top[0].t):' · '+top.length+' empatados'}`, 1],
+    ['at','Menor nota', `${minAc}/${tot}`, 'ponto de atenção', 0],
     ['ok','Maior domínio', dsc[0].nome, `${f1(dsc[0].pc)}% de acerto`, 1],
     ['','Disciplina crítica', dsc[dsc.length-1].nome, `${f1(dsc[dsc.length-1].pc)}% de acerto`, 1]
   ].map(([c,r,v,s,txt]) => `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val${txt?' txt':''}">${esc(v)}</div><div class="sub">${s}</div></div>`).join('');
@@ -454,9 +455,9 @@ function renderMatriz(al){
     `<tr><th class="lat">Turma</th>${ds.map(d=>`<th>${esc(curto(d.nome))}</th>`).join('')}<th>Geral</th></tr>`;
   const linha = (rot, grupo) => {
     const cels = ds.map(d => { const p = pct(grupo.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0), (d.fim-d.ini+1)*grupo.length);
-      return `<td><span class="cel" style="background:${corPct(p)}" title="${esc(rot)} — ${esc(d.nome)}: ${f1(p)}%">${Math.round(p)}</span></td>`; }).join('');
+      return `<td><span class="cel" style="background:${corPct(p)}" title="${esc(rot)} — ${esc(d.nome)}: ${f1(p)}%">${Math.round(p)}%</span></td>`; }).join('');
     const g = pct(grupo.reduce((s,a)=>s+cont(a.c),0), NQ*grupo.length);
-    return `<tr><th class="lat">${esc(rot)} <span class="tag">${grupo.length}</span></th>${cels}<td><span class="cel" style="background:${corPct(g)}">${Math.round(g)}</span></td></tr>`;
+    return `<tr><th class="lat">${esc(rot)} <span class="tag">${grupo.length}</span></th>${cels}<td><span class="cel" style="background:${corPct(g)}">${Math.round(g)}%</span></td></tr>`;
   };
   document.querySelector('#matriz tbody').innerHTML =
     (ts.map(t => linha(t, al.filter(a=>a.t===t))).join('') + (ts.length>1 ? linha('Todas', al) : ''))
