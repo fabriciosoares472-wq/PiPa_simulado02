@@ -1,0 +1,17 @@
+# Saída gerada pelos scripts de atualização — o bloco final vive dentro do
+# index.html / comparativo.html, não precisa ficar versionado à parte.
+data_block.js
+data_s1_block.js
+comparativo_data.js
+
+# Nunca versionar as planilhas originais: a do 2º Simulado contém a aba de
+# cadastro dos alunos (data de nascimento, telefone, responsáveis legais).
+# Use sempre as cópias em dados/, que já vêm sem essa aba.
+2__Simulado_2026.xlsx
+1__Simulado_EvaBee*.xlsx
+*_ORIGINAL.xlsx
+~$*.xlsx
+
+.DS_Store
+__pycache__/
+.venv/

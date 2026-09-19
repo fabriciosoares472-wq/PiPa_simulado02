@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>PiPA — Comparativo 1º × 2º Simulado 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Paleta e componentes-base idênticos ao Painel 2, para manter a mesma identidade visual */
+:root{
+  --preto:#101010; --preto-2:#1c1c1c; --vermelho:#d81f26; --vermelho-2:#a3161c;
+  --branco:#ffffff; --cinza-fundo:#eef0f2; --cinza-linha:#d7dade; --cinza-suave:#f5f6f8;
+  --texto:#1b1d20; --texto-2:#5d646c; --verde:#1e8e4d; --ambar:#c88a00; --roxo:#5b4a8a;
+  --sombra:0 1px 2px rgba(16,16,16,.10); --raio:4px;
+  --s1:#c88a00; --s2:#d81f26; /* cor fixa: 1º Simulado = âmbar, 2º Simulado = vermelho */
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cinza-fundo)}
+body{color:var(--texto);font-family:'Barlow',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Barlow Condensed','Barlow',system-ui,Arial,sans-serif;letter-spacing:.2px}
+.wrap{max-width:1420px;margin:0 auto;padding:0 16px 56px}
+
+.topo{background:var(--preto);color:#fff;border-bottom:4px solid var(--vermelho)}
+.topo-in{max-width:1420px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.marca{display:flex;align-items:center;gap:12px;min-width:0}
+.selo{width:46px;height:46px;flex:0 0 46px;background:var(--vermelho);color:#fff;display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;border-radius:var(--raio)}
+.marca h1{margin:0;font-size:24px;font-weight:700;line-height:1.1}
+.marca p{margin:2px 0 0;font-size:13px;color:#c9cdd2;font-weight:500}
+.topo-meta{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--preto-2);border:1px solid #33383d;border-radius:var(--raio);padding:6px 10px;font-size:12px;color:#c9cdd2}
+.chip b{color:#fff;font-size:14px;font-family:'Barlow Condensed',sans-serif}
+.nav-comp{display:inline-block;background:var(--vermelho);color:#fff;font-size:13px;font-weight:600;text-decoration:none;padding:8px 14px;border-radius:var(--raio);border:1px solid var(--vermelho);white-space:nowrap}
+.nav-comp:hover{background:var(--vermelho-2);border-color:var(--vermelho-2)}
+
+.filtros{background:var(--branco);border:1px solid var(--cinza-linha);border-radius:var(--raio);box-shadow:var(--sombra);padding:12px;margin:16px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.campo{display:flex;flex-direction:column;gap:4px;min-width:165px;flex:1 1 165px}
+.campo label{font-size:11px;font-weight:600;color:var(--texto-2)}
+select,input[type=search]{font-family:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--cinza-linha);border-radius:var(--raio);background:var(--cinza-suave);color:var(--texto);width:100%}
+select:focus,input:focus,button:focus-visible,tr[tabindex]:focus-visible,[role=button]:focus-visible{outline:2px solid var(--vermelho);outline-offset:1px}
+.btn{font-family:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--raio);border:1px solid var(--cinza-linha);background:transparent;color:var(--texto);cursor:pointer}
+.btn:hover{background:var(--vermelho);color:#fff;border-color:var(--vermelho)}
+.seg{display:flex;border:1px solid var(--cinza-linha);border-radius:var(--raio);overflow:hidden}
+.seg button{font-family:inherit;font-size:12px;font-weight:600;padding:7px 12px;border:0;background:var(--cinza-suave);color:var(--texto-2);cursor:pointer}
+.seg button.on{background:var(--preto);color:#fff}
+
+.aviso{background:#fff8ec;border:1px solid #f0dfb0;border-left:4px solid var(--ambar);border-radius:var(--raio);padding:12px 14px;margin-bottom:16px;font-size:13px;color:#5d4a1a}
+.aviso b{color:#3a2e0f}
+.aviso ul{margin:6px 0 0;padding-left:18px}
+.aviso li{margin-bottom:2px}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:18px}
+.kpi{background:var(--branco);border:1px solid var(--cinza-linha);border-left:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 10px;box-shadow:var(--sombra);min-width:0}
+.kpi .rot{font-size:11px;font-weight:600;color:var(--texto-2);margin-bottom:2px}
+.kpi .val{font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:700;line-height:1;overflow-wrap:anywhere}
+.kpi .val.txt{font-size:16px;line-height:1.2;font-weight:600}
+.kpi .sub{font-size:11px;color:var(--texto-2);margin-top:3px}
+.kpi.ok{border-left-color:var(--verde)} .kpi.at{border-left-color:var(--ambar)} .kpi.neutro{border-left-color:var(--preto)}
+.duo{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.duo b{font-family:'Barlow Condensed',sans-serif;font-size:22px}
+.duo .s1{color:var(--s1)} .duo .s2{color:var(--s2)}
+.seta{font-size:13px;color:var(--texto-2)}
+
+.grade{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.painel{background:var(--branco);border:1px solid var(--cinza-linha);border-radius:var(--raio);box-shadow:var(--sombra);overflow:hidden;min-width:0;margin-bottom:14px}
+.painel>header{background:var(--preto);color:#fff;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.painel>header h2{margin:0;font-size:16px;font-weight:600}
+.painel>header .nota{font-size:11px;color:#b9bec4;text-align:right}
+.painel .corpo{padding:12px}
+.graf{position:relative;height:290px}
+.graf.alto{height:380px}
+
+.rolar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--cinza-linha);white-space:nowrap}
+thead th{background:var(--cinza-suave);font-size:11px;font-weight:700;color:var(--texto-2);position:sticky;top:0;z-index:2}
+tbody tr:hover{background:var(--cinza-suave)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.ctr,th.ctr{text-align:center}
+.nome{white-space:normal;min-width:190px;font-weight:500}
+.tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600;background:var(--cinza-suave);border:1px solid var(--cinza-linha);color:var(--texto-2)}
+.pill{display:inline-block;min-width:52px;text-align:center;padding:2px 8px;border-radius:var(--raio);font-weight:700;font-size:12px;color:#fff}
+.p-alto{background:var(--verde)} .p-medio{background:var(--ambar)} .p-baixo{background:var(--vermelho)}
+.evo-sobe{background:var(--verde)} .evo-estavel{background:#8a9099} .evo-cai{background:var(--vermelho)}
+.alto-tab{max-height:470px;overflow:auto}
+.clic{cursor:pointer}
+
+.calor{border-collapse:separate;border-spacing:2px;font-size:11px}
+.calor th{background:transparent;position:static}
+.calor thead th{font-size:10px;text-align:center;padding:2px 3px;white-space:normal;max-width:60px;line-height:1.15}
+.calor th.lat{text-align:left;white-space:nowrap;font-weight:500;font-size:12px;color:var(--texto);padding-right:8px;background:var(--branco);position:sticky;left:0;z-index:1}
+.calor td{border:0;padding:0;text-align:center}
+.cel{display:block;width:100%;min-width:54px;padding:5px 2px;color:#fff;font-weight:700;border-radius:2px;font-variant-numeric:tabular-nums}
+.legenda{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:var(--texto-2);margin-top:10px}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:4px;vertical-align:-2px}
+
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.ins{border:1px solid var(--cinza-linha);border-top:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 12px;background:var(--cinza-suave)}
+.ins h3{margin:0 0 4px;font-size:15px;font-weight:600}
+.ins p{margin:0;font-size:13px;color:var(--texto-2)}
+.ins.bom{border-top-color:var(--verde)} .ins.info{border-top-color:var(--preto)} .ins.at{border-top-color:var(--ambar)}
+
+.modal{position:fixed;inset:0;background:rgba(10,10,10,.6);display:none;z-index:50;padding:16px;overflow:auto}
+.modal.on{display:block}
+.modal-cx{background:var(--branco);max-width:900px;margin:24px auto;border-radius:var(--raio);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+.modal-cx>header{background:var(--preto);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-cx h2{margin:0;font-size:20px}
+.modal-cx header p{margin:2px 0 0;font-size:12px;color:#b9bec4}
+.fechar{background:transparent;border:1px solid #444;color:#fff;font-size:18px;line-height:1;width:30px;height:30px;border-radius:var(--raio);cursor:pointer;flex:0 0 30px}
+.fechar:hover{background:var(--vermelho);border-color:var(--vermelho)}
+.sec-t{font-size:12px;font-weight:700;color:var(--texto-2);margin:14px 0 6px}
+.rodape{text-align:center;font-size:12px;color:var(--texto-2);padding-top:18px}
+.vazio{padding:28px 12px;text-align:center;color:var(--texto-2)}
+@media (max-width:640px){.marca h1{font-size:20px}.graf{height:260px}.graf.alto{height:340px}.kpi .val{font-size:23px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-in">
+    <div class="marca">
+      <div class="selo">PiPA</div>
+      <div><h1>Comparativo Pedagógico</h1><p>1º × 2º Simulado 2026 — Instituto PiPA</p></div>
+    </div>
+    <div class="topo-meta" id="topoMeta"></div>
+    <a class="nav-comp" href="index.html">← Voltar ao Painel do 2º Simulado</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="aviso" id="avisoMetodologia"></div>
+
+  <div class="filtros">
+    <div class="campo"><label for="fTurma">Turma</label><select id="fTurma"><option value="">Todas as turmas</option></select></div>
+    <div class="campo"><label for="fDisc">Disciplina</label><select id="fDisc"><option value="">Todas as disciplinas</option></select></div>
+    <div class="campo" style="flex:2 1 220px"><label for="fNome">Buscar aluno</label><input type="search" id="fNome" placeholder="Digite parte do nome" autocomplete="off"></div>
+    <div class="campo" style="min-width:220px">
+      <label>Tabela individual mostra</label>
+      <div class="seg" id="segEscopo">
+        <button data-v="comuns" class="on">Comuns aos dois</button>
+        <button data-v="todos">Todos os alunos</button>
+      </div>
+    </div>
+    <button class="btn" id="btnLimpar" type="button">Limpar filtros</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grade g2">
+    <section class="painel">
+      <header><h2>Desempenho por disciplina</h2><span class="nota">1º × 2º · apenas alunos comuns aos dois simulados</span></header>
+      <div class="corpo"><div class="graf"><canvas id="cDisc"></canvas></div></div>
+    </section>
+    <section class="painel">
+      <header><h2>Evolução por disciplina</h2><span class="nota">variação em pontos percentuais</span></header>
+      <div class="corpo"><div class="graf"><canvas id="cDiscEvo"></canvas></div></div>
+    </section>
+  </div>
+
+  <section class="painel">
+    <header><h2>Tabela comparativa por disciplina</h2><span class="nota" id="notaDiscTab"></span></header>
+    <div class="corpo"><div class="rolar"><table id="tabDisc">
+      <thead><tr><th>Disciplina</th><th class="num">Questões</th><th class="num">% 1º Sim.</th><th class="num">% 2º Sim.</th><th class="num">Variação</th><th>Tendência</th><th class="num">Alunos comparados</th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
+  </section>
+
+  <div class="grade g2">
+    <section class="painel">
+      <header><h2>Comparativo por turma</h2><span class="nota">coorte completa de cada simulado</span></header>
+      <div class="corpo"><div class="graf"><canvas id="cTurma"></canvas></div></div>
+    </section>
+    <section class="painel">
+      <header><h2>Distribuição da evolução individual</h2><span class="nota" id="notaEvoDist"></span></header>
+      <div class="corpo"><div class="graf"><canvas id="cEvoDist"></canvas></div></div>
+    </section>
+  </div>
+
+  <section class="painel">
+    <header><h2>Tabela comparativa por turma</h2><span class="nota">todos os alunos avaliados em cada simulado, não apenas os comuns</span></header>
+    <div class="corpo"><div class="rolar"><table id="tabTurma">
+      <thead><tr><th>Turma</th><th class="num">Alunos 1º Sim.</th><th class="num">Alunos 2º Sim.</th><th class="num">% 1º Sim.</th><th class="num">% 2º Sim.</th><th class="num">Variação</th><th>Tendência</th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Matriz de evolução — turma × disciplina</h2><span class="nota">variação em p.p., coorte completa de cada simulado</span></header>
+    <div class="corpo">
+      <div class="rolar"><table class="calor" id="matrizEvo"><thead></thead><tbody></tbody></table></div>
+      <div class="legenda">
+        <span>Variação (p.p.):</span>
+        <span><i style="background:#8e1015"></i>≤ -15</span><span><i style="background:#d81f26"></i>-15 a -5</span>
+        <span><i style="background:#8a9099"></i>-5 a +5 (estável)</span>
+        <span><i style="background:#4a9a4f"></i>+5 a +15</span><span><i style="background:#16713a"></i>≥ +15</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Comparativo individual dos alunos</h2><span class="nota" id="notaIndiv"></span></header>
+    <div class="corpo">
+      <div class="rolar alto-tab"><table id="tabIndiv">
+        <thead><tr><th>Aluno</th><th>Turma</th><th class="num">% 1º Sim.</th><th class="num">% 2º Sim.</th><th class="num">Variação</th><th>Tendência</th><th>Maior variação por disciplina</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p style="font-size:12px;color:var(--texto-2);margin:10px 0 0">Clique em um aluno para ver o detalhamento por disciplina nos dois simulados.</p>
+    </div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Leitura pedagógica</h2><span class="nota">gerada a partir dos dados filtrados</span></header>
+    <div class="corpo"><div class="insights" id="insights"></div></div>
+  </section>
+
+  <p class="rodape">Instituto PiPA — Comparativo entre o 1º e o 2º Simulado 2026. Esta é uma visão independente; o Painel Pedagógico do 2º Simulado não foi alterado.</p>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mNome">
+  <div class="modal-cx">
+    <header><div><h2 id="mNome"></h2><p id="mSub"></p></div><button class="fechar" id="mFechar" aria-label="Fechar">&times;</button></header>
+    <div class="corpo" style="padding:14px">
+      <div class="kpis" id="mKpis" style="margin-bottom:14px"></div>
+      <div class="grade g2">
+        <div><div class="sec-t">Percentual de acertos por disciplina</div><div class="graf"><canvas id="cAlunoDisc"></canvas></div></div>
+        <div><div class="sec-t">Comparação numérica</div><div class="rolar"><table id="mTab"><thead><tr><th>Disciplina</th><th class="num">% 1º</th><th class="num">% 2º</th><th class="num">Variação</th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   PiPA — Comparativo Pedagógico — 1º × 2º Simulado 2026
+   Página independente. Não referencia nem modifica o index.html (Painel 2).
+
+   Cada bloco const DATA1 / DATA2 segue o mesmo esquema:
+   {titulo, totalQuestoes, gabarito, disciplinas[{nome,ini,fim}], alunos[{id,n,t,a,c}]}
+   a = respostas marcadas · c = string de 0/1 da correção oficial
+   ========================================================================== */
+const DATA1 = {"titulo":"1º Simulado 2026","totalQuestoes":50,"gabarito":"BCBCDACDBBCBCCCDBDACDACCDCDAEBCDBEDCACCCEADBEDCABE","disciplinas":[{"nome":"ATUALIDADES","ini":1,"fim":5},{"nome":"BIOLOGIA","ini":6,"fim":10},{"nome":"INTERPRETAÇÃO DE TEXTO","ini":11,"fim":21},{"nome":"HISTÓRIA","ini":22,"fim":26},{"nome":"GEOGRAFIA","ini":27,"fim":31},{"nome":"MATEMÁTICA","ini":32,"fim":38},{"nome":"GRAMÁTICA","ini":39,"fim":40},{"nome":"QUÍMICA","ini":41,"fim":45},{"nome":"FÍSICA","ini":46,"fim":50}],"alunos":[{"id":1320,"n":"Ester Marcondes de Lima Costa","t":"Turma 4","a":"BABCDACDBACBCCCDBDABCACCECDADBCDBEDCACCCEABBDDBABE","c":"10111111101111111110011101110111111111111101010111"},{"id":1261,"n":"Lucas Borges de Jesus","t":"Turma 3","a":"BABBDACDBACBCCCDBDACEACCDCCACBCBBEDCAECCEADBEDCBBE","c":"10101111101111111111011111010110111110111111111011"},{"id":1290,"n":"Maria Ysabell Sodré de Andrade","t":"Turma 3","a":"BCBAAACDCACACCCDBDACDAEEDCDABBDABEDBACCCEADBEDAABE","c":"11100111001011111111110011110100111011111111110111"},{"id":1207,"n":"Kauanny Lima Matos","t":"Turma 1","a":"BCBCDACABBCBCCCDBCACEACCCCDEEBDDCECCAECCEADBEEEEEE","c":"11111110111111111011011101101101010110111111100001"},{"id":1333,"n":"Manuella Silvério dos Santos","t":"Turma 3","a":"BCBCDBCDBDEACCCBBDCCEAECDCDCCBCDBEDCADCCEADBEDCBBC","c":"11111011100011101101010111100111111110111111111010"},{"id":1274,"n":"Kizy Thauane Nunes da Silva","t":"Turma 2","a":"BCBCDAADCBECCCCEBDECEACCECDAEBDBBEDCAECCEADBEBCEDE","c":"11111101010011101101011101111100111110111111101001"},{"id":1280,"n":"Laura Martins Alencar","t":"Turma 3","a":"BCBCAACDBCCACCCDEBACDACCDCDBEDCAAEBAACDCEADBEBCAEE","c":"11110111101011110011111111101010010011011111101101"},{"id":1249,"n":"Mirella Borges de Cezar","t":"Turma 4","a":"BCBEDBCDBBCBCCCEBDCCEACCDCBAEBCCBEDDABCCDADCEBACBC","c":"11101011111111101101011111011110111010110110100010"},{"id":1295,"n":"Gabriel Nobrega de Sá","t":"Turma 3","a":"BCBDDAADCDCBCCCAEDACEACCDCDBDBCBBEDACCCCEADBDBCAEC","c":"11101101001111100111011111100110111001111111001100"},{"id":1321,"n":"Mirella Vitória Gomes Aguilar","t":"Turma 4","a":"BABADCCDCDCECCCBBDACCACADCDABBDABEDCAECCEADBECCADB","c":"10101011001011101111011011110100111110111111101100"},{"id":1240,"n":"Lívia Sant'Anna Ferreira","t":"Turma 2","a":"BBBEDEEEBBEBCCCDCCCCEACCDCDABBCCBEDAACCCEADDEECDDE","c":"10101000110111110001011111110110111011111110101001"},{"id":1226,"n":"Pedro Henrique Rocha Batista","t":"Turma 1","a":"BCBCDACDBBBBCCCBCDEECACCCCDABBDABEBECCACEAECBDCDBE","c":"11111111110111100100011101110100110001011100011011"},{"id":1256,"n":"Rogerio Pinheiro Zadravec","t":"Turma 2","a":"BCBCBAAEBDCECCCDADDECAADCCCBEBCDBEBBAECCEADBEDCABA","c":"11110100101011110100010001001111110010111111111110"},{"id":1304,"n":"Enzo Vieira França","t":"Turma 3","a":"BCACDABDCBEBCCCDADBAEAABDCCABBBABEECACCEEADBECCCEE","c":"11011101010111110100010011010100110111101111101001"},{"id":1232,"n":"Isabella da Silva Santos","t":"Turma 1","a":"DCBCDABDBBEBCCCEEDABEAABEEDACBCCCEECACBCEADBDBCEBE","c":"01111101110111100110010000110110010111011111001011"},{"id":1233,"n":"Julia Mamedes Ribeiro","t":"Turma 1","a":"BCBCDACDBBEBCCCDACAAEACCACABDBCDDEDCAACCDADAAABCEC","c":"11111111110111110010011101000111011110110110000000"},{"id":1291,"n":"Kauan Santos de Oliveira","t":"Turma 2","a":"BDBCDBEDDACBCCCACDACEABCCCDADBDEBEDBABCCEADBDCCCBA","c":"10111001001111100111010101110100111010111111001010"},{"id":1219,"n":"Larissa Arevalo da Silva","t":"Turma 1","a":"CCBCDEDDCBDBCCCDDCACAACBDCDDCBDCEBDBACCCDADBEACDBE","c":"01111001010111110011011011100100001011110111101011"},{"id":1285,"n":"Matheus Alves Campos","t":"Turma 4","a":"BABCDECDBBEBCECAAACDEAACCCDADBCCDEDCADCCEADAEDCEEE","c":"10111011110110100000010101110110011110111110111001"},{"id":1203,"n":"Ryan Lucas Dias do Nascimento Silva","t":"Turma 4","a":"BEBADADDCDCBCCCABDECEACCACDADBDEDEBBACACECDBEDBCBE","c":"10101101001111101101011101110100010011011011110011"},{"id":1303,"n":"Anna Julia Nogueira da Silva","t":"Turma 3","a":"BCBCDACDBECCCCCDBCACEAEDACDBDBCADEBDEAECBADBDDCECE","c":"11111111101011111011010001100110010000010111011001"},{"id":1267,"n":"Julia da Silva Barros","t":"Turma 2","a":"BCBCDABDCBCACCCDDDABEACCBCDBDBCBBECAADCCDBDCECBBEE","c":"11111101011011110110011101100110110010110010100001"},{"id":1328,"n":"Marcela Oliveira Levino Tenca","t":"Turma 4","a":"BCBCDADDBACBCCCDADDCEDDDACDABBCBBBCCCBCCDACBEDCCDC","c":"11111101101111110101000001110110100100110101111000"},{"id":1217,"n":"Murilo Pereira Dias","t":"Turma 1","a":"ECBAAACBCBBACCCDBDCBEAACCCDADBBBBEBADBCCAADBEDCABE","c":"01100110010011111100010101110100110000110111111111"},{"id":1205,"n":"Paulo Novais dos Santos","t":"Turma 1","a":"AEACDACDEBCBCCCABDACEACCDCDDCCDADEBCABBCDACBABDABE","c":"00011111011111101111011111100000010110010101000111"},{"id":1325,"n":"Guilherme Rodrigues Rocha","t":"Turma 4","a":"BABBAACDBBABCCCAADDCCACABCDADBAABEBCBCEDDADBDECBBE","c":"10100111110111100101011001110100110101000111001011"},{"id":1224,"n":"Maria Clara de Freitas Nepomuceno","t":"Turma 4","a":"BEBEDEADCAEECCCABDECCACCCCDBDCDDBEBAACCCAADBEBCACE","c":"10101001000011101101011101100001110011110111101101"},{"id":1248,"n":"Ana Julia dos Santos Silva","t":"Turma 2","a":"BEBCDACDDBCECCCABDEBAAEDBCDBEBBCDCDBADACAADBDBCABC","c":"10111111011011101100010001101100001010010111001110"},{"id":1336,"n":"Geovanna Borges Albarrassim","t":"Turma 4","a":"DABBDDBDB*EBCCCDDDACCAEADCEADBCEBEDAABACEADCDCCDEE","c":"00101001100111110111010011010110111010011110001001"},{"id":1227,"n":"Ketelyn de Paiva Teixeira","t":"Turma 1","a":"BEBADABDABECCACAEDACEADBCCDADBDDDEBCAEDCEADBECBDBE","c":"10101101010010100111010001110101010110011111100011"},{"id":1302,"n":"Luiz Carlos da Silva Sousa","t":"Turma 2","a":"EABABACDCBEACCCEDDAADAAADCDAEBCAAACDBBCCEADBDACBBE","c":"00100111010011100110110011111110000000111111001011"},{"id":1307,"n":"Riquelme Andre da Silva França","t":"Turma 3","a":"BCBCDACDBCCBBBCBDDCBBA-CBCBABB-ABEDCACCABBBBBBCBCE","c":"11111111101100100100010101010100111111100001001001"},{"id":1294,"n":"Allana Eduarda Coutinho dos Santos","t":"Turma 3","a":"BCBADACBCDCCCCCABCCCEABEEDDABBCCBEAEADECEADBCDABCE","c":"11101110001011101001010000110110110010011111010001"},{"id":1228,"n":"Alyce Lopes Silva","t":"Turma 1","a":"BCCCDAADBBDBCCCEBDDECBCDDCDEBBCCBECCDAACDACBDACCDC","c":"11011101110111101100001011100110110100010101001000"},{"id":1212,"n":"Ana Giullia Rodrigues Roza","t":"Turma 1","a":"BEBCDAEDCBCACCCDBDDACBBDACDABBDCEEBCBEACEADBDEADDE","c":"10111101011011111100000001110100010100011111000001"},{"id":1296,"n":"Barbara Cristina Lopes Martins","t":"Turma 3","a":"BABADECDBBCDCCCABDACBAACAACACDC*BDACDA*CEDDBCDEEDD","c":"10101011111011101111010100010010100100011011010000"},{"id":1319,"n":"Brenda Martins dos Santos","t":"Turma 3","a":"BCBEEACDDDABCCCDECABABBCCCEEBBCDBACCABBAEAEBEECDBA","c":"11100111000111110010000101000111100110001101101010"},{"id":1301,"n":"Carlos Eduardo Souza Ribeiro","t":"Turma 3","a":"BCBBDCCDBCCBCCCABDACEACEBCCBBBDCDEBECDECADAEDDCDBE","c":"11101011101111101111011001000100010000010000011011"},{"id":1263,"n":"Carolina Santos do Carmo","t":"Turma 2","a":"BCBCDECDBBCACCCDBBCCCABBDCBCBCDEDBCDADCDEADCEADACB","c":"11111011111011111001010011000000000010101110100100"},{"id":1262,"n":"Jonathan Gonçalves da Silva","t":"Turma 2","a":"BCBADEBECACBBCCABDACCACECCDAEBDEAEDADDDDECDDEDCDDB","c":"11101000001101101111011001111100011000001010111000"},{"id":1279,"n":"Pedro Riquelme Lino do Carmo","t":"Turma 4","a":"BABCDEDADCDBCCCDBDDECACBDCDCDACABDACABCCCADBDBADAE","c":"10111000000111111100011011100010100110110111000001"},{"id":1310,"n":"Yasmin Fernandes de Moura","t":"Turma 3","a":"ECBBBCCDCBEBCCCDECCCBCDCCCDABACBBCABADECEAEBEACCBE","c":"01100011010111110001000101110010100010011101101011"},{"id":1278,"n":"Emerson Santana Duraque","t":"Turma 2","a":"BCBBDECDBBAACCCDD-CBEADCECEAEBDBDE*D*ECDEADDDDBBEE","c":"11101011110011110000010101011100010000101110010001"},{"id":1272,"n":"Emilli Pereira Rocha","t":"Turma 2","a":"CCBEECEEBBABCCCAACECBABCDDEAEDCAABDBAEAAEADBCDCABD","c":"01100000110111100001010110011010001010001111011110"},{"id":1332,"n":"Evellyn Magalhães Souza","t":"Turma 1","a":"ACCDDACDBBEACCCBBCEEEADCACCBDBBADEDCEACAEAEBCBCDBE","c":"01001111110011101000010101000100011100101101001011"},{"id":1338,"n":"Gabriel Vasconcelos de Mello","t":"Turma 1","a":"BCBBDAEBEBCBCDCBEDDEEBBECCDADBCADEBCCEECEADBDABAEE","c":"11101100011110100100000001110110010100011111000101"},{"id":1339,"n":"Helena Teixeira Gomes","t":"Turma 2","a":"BDBADAECDCCBDCCABCAAEDBCCCDCBBCBDEBDACCCEADBDDDDEC","c":"10101100001101101010000101100110010011111111010000"},{"id":1288,"n":"Jamilly Vitoria Salles Silva","t":"Turma 3","a":"BCBCDAEDCDCBCCCBBDAACACCADDBDCBCCEEAABCCEAADDAAEEC","c":"11111101001111101110011100100000010010111100000000"},{"id":1334,"n":"Kevillyn Beatriz Souza de Lima Oliveira","t":"Turma 4","a":"BABCDACDBCCBCBCDCDACCABCCCDDDBDBBECDDDDCAACCABDDDC","c":"10111111101110110111010101100100110000010100000000"},{"id":1258,"n":"Lizzie Cristina do Nascimento Silva","t":"Turma 2","a":"BCBCDECCEBCBCCCAAAABCBBB*CDAEBDCCCDAEABCEADECCCCEE","c":"11111010011111100010000001111100001000011110001001"},{"id":1298,"n":"Vitor Marques Alves","t":"Turma 4","a":"ECAADDCDBDEACCCDADD-CACDBCDBBACBBBBCBCDADADBEDAEBE","c":"01001011100011110100011001100010100101000111110011"},{"id":1335,"n":"Yasmin Cocarelli de Assis","t":"Turma 4","a":"CCBCDACEBAEBCCCAEDABCADAACDADBCBCCBAADBCDACBAABABC","c":"01111110100111100110010001110110000010010101000110"},{"id":1277,"n":"Alan Santos Souza","t":"Turma 3","a":"BCBCDECEBDEECCCDADEECABECCDECCDCCEBBAAAABADBEAAABE","c":"11111010100011110100010001100000010010000111100111"},{"id":1204,"n":"Ana Beatrys de Lima Costa","t":"Turma 1","a":"AEBEDCBDCBCBCCCDBCDCECADDCCACBCCBCCDBDCAEADDECBDDE","c":"00101001011111111001000011010110100000101110100001"},{"id":1209,"n":"Anna Beatriz dos Santos Pereira","t":"Turma 1","a":"DCEABECDCBDBCCCDBDCAEACCBBBBBBDBBEDAADBCAADBDEEBAE","c":"01000011010111111100011100000100111010010111000001"},{"id":1210,"n":"Anna Júlia Marcelino dos Santos","t":"Turma 1","a":"ECEDDABDBBEACCCBBDECEABACCDBDBDADECAEDCCAADBEBECCE","c":"01001101110011101101010001100100010000110111100001"},{"id":1202,"n":"Israel Mendes da Silva Abreu","t":"Turma 1","a":"BCBBDAEDDBECCACAAADCDBEBBCCADBCEEECCBDDCEADBDEDABA","c":"11101101010010100001100001010110010100011111000110"},{"id":1322,"n":"Júlio César de Sousa Silva","t":"Turma 3","a":"BEBADAADBEBACECBDDBCEADEACDACADACEACACBCEEDDEBCBBA","c":"10101101100010100101010001110000010111011010101010"},{"id":1309,"n":"Melissa Helena Costa Machado","t":"Turma 3","a":"DCBDDBCDEBDACCCBBCAEDACEDDDBDCCABABEBCEDEDDBEEDCCE","c":"01101011010011101010111010100010100001001011100001"},{"id":1239,"n":"Aleffe Adriano Gomes da Silva","t":"Turma 2","a":"ECBDDACBDBEBBCCBEDABDADCACBABBDC-DBBAEBCEACBDABBCE","c":"01101110010101100110110101010100000010011101000001"},{"id":1330,"n":"Gustavo Henrique Anselmo do Nascimento","t":"Turma 4","a":"EABDDEADEBEACCCDCDAACABBDCDBABBCCBDDAAACEADABDDCDE","c":"00101001010011110110010011100100001010011110010001"},{"id":1229,"n":"Kennedy de Souza Lopes","t":"Turma 1","a":"BCBADAADCBCACCCBEACEBABCECDADCDCEEBBCDECEAEBEDBBDC","c":"11101101011011100000010101110000010000011101110000"},{"id":1273,"n":"Maria Ester Cano Morales","t":"Turma 4","a":"ECBCDCEECCAACDCDADABDACADBCBEAC*EEAAACCDDACBEDBDDB","c":"01111000000010110110111010001010010011100101110000"},{"id":1324,"n":"Sarah Alves de Carvalho","t":"Turma 4","a":"DEBCDACDEDCBCCCAECDBDABCBCBBCBCCEBBADCEAEADDBACAED","c":"00111111001111100000110101000110000001001110001100"},{"id":1318,"n":"Ana Jullya Pereira Soares","t":"Turma 1","a":"DABCDEDABBDBCCCDDCCDDDDCACDADDBCBECDBADCEADDACDADB","c":"00111000110111110000100101110000110000011110000100"},{"id":1214,"n":"Arthur Albuquerque","t":"Turma 1","a":"DCBDAABDCBEECDCDBDECAACEBCDBBBCEEDBBAEBCEAECBCEAEB","c":"01100101010010111101011001100110000010011100000100"},{"id":1299,"n":"Carlos Eduardo Silva e Silva","t":"Turma 4","a":"BCBADADDCBEACBCDEEBCDBBCCCD-CBDCEEBCBADCBAECDBCCBC","c":"11101101010010110001100101100100010100010100001010"},{"id":1329,"n":"Maria Eduarda Leite Correia dos Santos","t":"Turma 4","a":"BCBEDBCEBBCBCCCDBDCDEBADDBAAEBCBDBBBCB-CCCDCABDCCC","c":"11101010111111111100000010011110000000010010000000"},{"id":1323,"n":"Bruna Milena Laureano Silva","t":"Turma 1","a":"ACBADEDEBBEBCBCEBDECEABBDCAECADEDABCACEACADEAEBBBE","c":"01101000110110101101010011000000000111000110000011"},{"id":1257,"n":"Kamilly de Oliveira Carvalho","t":"Turma 2","a":"DCBBEBDEABEBCCCDBCDEABADDCABDBCCDEBCCCDCCADBEBDCDC","c":"01100000010111111000000011000110010101010111100000"},{"id":1252,"n":"Maria Luiza Torres Monteiro","t":"Turma 2","a":"DBCCDEAECCCACCCDEDDCBABCCADADBDDDCBAACCCAACCDDBECC","c":"00011000001011110101010100110101000011110100010000"},{"id":1221,"n":"Thauany de Carvalho Neri","t":"Turma 1","a":"CDCADEEDBBABCCCBDCADCBDCDCDCDBDABECDAADCEAECCDDBEA","c":"00001001110111100010000111100100110010011100010000"},{"id":1246,"n":"Yasmim Camilly Lima Cavalcanti","t":"Turma 1","a":"ACBCDEBDCBEACCCADEEBBABDCCBBBBBDBE-DCACCDADECBBEBE","c":"01111001010011100000010001000101110000110110000011"},{"id":1234,"n":"Carolina Fernandes Passos","t":"Turma 1","a":"BCBBDADDBDCECCCDEACCEECC-CDCBBBCEBCBDEBCEBECCADEEC","c":"11101101101011110001001101100100000000011000000000"},{"id":1331,"n":"Esther Ferreira dos Santos","t":"Turma 4","a":"DCBCDACDACAECECBBEECCAEDDCDCBBDBCDCABEACDADBAEEEEC","c":"01111111000010101001010011100100000000010111000000"},{"id":1314,"n":"Laura Fagundes de Lira","t":"Turma 4","a":"BDBEDACDBCBADCCDCDECCAAAACAEDBACDEBAECC-CADDDBEEEC","c":"10101111100001110101010001000100010001100110000000"},{"id":1223,"n":"Ryan Miguel de Araújo Lopes","t":"Turma 1","a":"DCBBDACDDBEECCCACDACCBDABBCBDCACCEBBDCAEDAEBCDCCBA","c":"01101111010011100111000000000000010001000101011010"},{"id":1231,"n":"Thiago Diniz Santos","t":"Turma 3","a":"ECDADAAEABECCCCBBDACEAABCDCADAABECCCEABCEAEBDCCCCE","c":"01001100010011101111010000010000000100011101001001"},{"id":1327,"n":"Wendy Rosiani Cussi Loza","t":"Turma 4","a":"BCBDDAEDBCEACCCDAECCCBBDACABDDACCCDAAABCAADCABCADC","c":"11101101100011110001000001000000001010010110001100"},{"id":1284,"n":"Isis Larissa dos Santos Silva","t":"Turma 4","a":"BADDDCADBDECECCDEDCDBCDCADDADAADDBBBCDECEADBBDBDBC","c":"10001001100001110100000100110001000000011111010010"},{"id":1244,"n":"Kamilly Cristina Neves de Oliveira","t":"Turma 2","a":"BBCEDECDABEAECCDADABCABDACAADBDCEDBABBDDAABCDDCEBE","c":"10001011010001110110010001010100000000000100011011"},{"id":1289,"n":"Kariely Claisa Butrón Gutierrez","t":"Turma 3","a":"ABEDDADDBAECCCCEAECDABDDBCDACBDCBEBCBEBCBBCBEACAEC","c":"00001101100011100000000001110100110100010001101100"},{"id":1317,"n":"Luz Noelia Mamani Lapaca","t":"Turma 4","a":"BEDEAACBBCECCCCBDEBCEABBCCDBBDCBBECBDCCCBABDACCCEC","c":"10000110100011100001010001100010110001110100001000"},{"id":1255,"n":"Maria Eduarda Oliveira Ribeiro","t":"Turma 2","a":"ECBCDACDACCABCCDEDCBEDDDDACDCCADCBBCACDBDBECEBCCDB","c":"01111111001001110100000010000001000111000000101000"},{"id":1241,"n":"Maria Eduarda do Nascimento Bonfim","t":"Turma 2","a":"BABCDADADBEECCCDADCACBAECADEACCAACDACBECDADBBBDEBA","c":"10111100010011110100000000100010001000010111000010"},{"id":1313,"n":"Matheus de Souza Basilio Lopes","t":"Turma 4","a":"ADBEDACCBBEACCCABECCDDACCDCBBCCBCEBBADECBBCECDDBDE","c":"00101110110011101001100100000010010010010000010001"},{"id":1218,"n":"Nicolly de Oliveira Peres","t":"Turma 2","a":"ADDABACEBBECCCCDECCCDDBCDCDEDBCBEDCBACDAAACCABDCDC","c":"00000110110011110001100111100110000011000100000000"},{"id":1264,"n":"Arthur Alves dos Santos","t":"Turma 4","a":"BCBCEECEBEEBCDCAACDCECDBCEDABBDDDDAAAAAADACBDABBEE","c":"11110010100110100001000000110101000010000101000001"},{"id":1235,"n":"Ellyson Gutierrez Condori","t":"Turma 2","a":"BCBBAEAECBDECCCAADEBECDECADBDBCDDBCBDBBAEAABDACCBE","c":"11100000010011100100000000100111000000001101001011"},{"id":1206,"n":"Henrique Costa Meira","t":"Turma 1","a":"CBBCDACDEBEE*CCBDDEBECDDCCDEDCDACEBAADCCDAECDADCDE","c":"00111111010001100100000001100000010010110100000001"},{"id":1297,"n":"Isaac Mendonça Santos Neres","t":"Turma 3","a":"ACBDDACEBACBCACDABACEBCEBCACACBBBACADADACCAECCAACE","c":"01101110101110110011001001000000100000000000000101"},{"id":1251,"n":"Kaique Barbosa Ferreira da Silva","t":"Turma 2","a":"ECBEDAEEDDEDAECEBCDBBABDBCDBBBCCCEDBA-DAEAEBEEBDDA","c":"01101100000000101000010001100110011010001101100000"},{"id":1220,"n":"Lavinia Souza Guimarães","t":"Turma 1","a":"BCBADADEEACECCCECDABDABECBAACABCCAECAABADAACCEDBDE","c":"11101100001011100110110000010000000110000100000001"},{"id":1316,"n":"Maria Clara Dias Portes","t":"Turma 4","a":"DABCAADACAEAADCABABCCABCDCBCCDCDDDCCDBECDAACCECDBE","c":"00110100000000101001010111000011000100010100001011"},{"id":1222,"n":"Milena Oliveira dos Santos","t":"Turma 1","a":"CCBDDECDCBEBCCBBBDCEDECCACABCDCCDDCADBCCDBCCABBCDD","c":"01101011010111001100101101000010000000110000000000"},{"id":1315,"n":"Monike Gabrielly da Silva Bezerra","t":"Turma 3","a":"ACBBDCCDECEBCCCDBCCBAABCCEBBDCDCCDCBCAECDADDDDCDDC","c":"01101011000111111000010100000000000000010110011000"},{"id":1265,"n":"Emilly Angeli da Silva","t":"Turma 2","a":"AABEAEDDEBEBEBBACDEEAEBAACDEDACDBECCACAEEABDCBDACD","c":"00100001010100000100000001100011110111001100000100"},{"id":1215,"n":"Emilly Oliveira Santos","t":"Turma 1","a":"AABDDADDBEEEBCCBBAEACBCEDCDCCCCEABBBBACA*ACAEADDEE","c":"00101101100001101000001011100010000000100100100001"},{"id":1326,"n":"Gustavo Carvalho de Araujo","t":"Turma 4","a":"BCEDDAEDCEDBCCCBCEABDABEBCA*BBBBDAEADABCEDB*BABCCE","c":"11001101000111100010110001000100000000011000000001"},{"id":1254,"n":"Heloisa Videira Machado","t":"Turma 3","a":"DBBDDBCECDEBCCCDACECCDABACECDBECEECBAEECCADEECECEA","c":"00101010000111110001000001000100010010010110100000"},{"id":1311,"n":"João Victor de Souza Santos","t":"Turma 4","a":"DCBCEBCEABEBCCCBDCCBEADDCCDADBECCEBCDAEADAECAEDBEC","c":"01110010010111100000010001110100010100000100000000"},{"id":1208,"n":"Júlia Vitória dos Santos Silva","t":"Turma 1","a":"DACCDAEACBECCCCBDD*BCBDCDCBBDBDACCCDAACDEADDDAADDA","c":"00011100010011100100000111000100000010101110000000"},{"id":1213,"n":"Júlio Nobre Ribeiro","t":"Turma 4","a":"ECBDDBADEDCACECACACCCCBCACDABABBEEBABCBCCABDDADACA","c":"01101001001010100001000101110000010001010100000100"},{"id":1260,"n":"Maria Luiza Cesar Sabino","t":"Turma 2","a":"CCBADCDECBEDCACBBDEAEADBCCAADB*CEEBBCCAAEAECBBADBA","c":"01101000010010101100010001010100010001001100000010"},{"id":1292,"n":"Vitoria Moraes Malosti","t":"Turma 3","a":"EABAADCDBAEAACCBBAEBEBCCABEBDBCCDECDAECDDDECCECAEB","c":"00100011100001101000001100000110010010100000001100"},{"id":1275,"n":"Yasmin Kauany Nunes dos Santos","t":"Turma 2","a":"BDDBBACDCBCDCCCBECBECDBCECABBCBBEEBBAEDBEBCCDCCDDE","c":"10000111011011100000000101000000010010001000001001"},{"id":1270,"n":"Camila de Andrade Dutra Apolinario","t":"Turma 2","a":"CBBDDECEBCEECCCDAEACDABDCCEBDECBCBADCAADDAEACBEEDC","c":"00101010100011110011110001000010000000000100000000"},{"id":1283,"n":"Jose Vaelison de Oliveira Pereira","t":"Turma 3","a":"ADBDCACDABEACECBDACBDBBCDABCABAEBACACBEADACBBADCBB","c":"00100111010010100000100110000100100000000101000010"},{"id":1281,"n":"Julia Vitoria Bueno da Silva Ferreira","t":"Turma 3","a":"ABBEDCEDBDEBDDBADDCEDBCBACCACCABBBBDADBBDABCAADADE","c":"00101001100100000100101001010000100010000100000101"},{"id":1243,"n":"Sabena Ifeoma da Silva Ibe","t":"Turma 2","a":"BCBCEBABBAEABCCDBBCAEACABCDCCBCBABCACB*DACBCAB*CCC","c":"11110000100001111000011001100110000000000000000000"},{"id":1225,"n":"Yasmin Andrade dos Santos","t":"Turma 4","a":"CCCBEDDDBCBCBCCADDABAAACBABABCBBECCDAEACEBABDAEAED","c":"01000001100001100110010100010000000010011001000100"},{"id":1287,"n":"Isabella Aidê Ribeiro de Barros","t":"Turma 3","a":"BBCDACEDCDCECCCDDCCDABBBACBABBBAEDCCBEDCDCEBADBDDA","c":"10000001001011110000000001010100000100010001010000"},{"id":1276,"n":"Rayssa Soares da Costa","t":"Turma 3","a":"ADEEDDEBBACCCDCBDDCDECBEAAAADACDEBEBABEBCACBBABBBE","c":"00001000101010100100000000010011000010000101000011"},{"id":1300,"n":"Rayza Lima de Carvalho","t":"Turma 3","a":"AABABAADAACEECCDDDEADBABACACABBBBABACDEDAAEBCABDDA","c":"00100101001001110100100001000100100000000101000000"},{"id":1341,"n":"Thamires Rodrigues de Oliveira","t":"Turma 3","a":"CEEBDACDBCECCDBDEDCBCABEDCEBDBBCDAEBCACEDAECDEBBEC","c":"00001111100010010100010011000100000000100100000000"},{"id":1268,"n":"Maria Eduarda Alves da Silva Putumuju","t":"Turma 2","a":"A-BEE-DECBEACCCDECBCC-BDACEECBBECAABCEECDADACBCCDA","c":"00100000010011110001000001000100000000010110001000"},{"id":1238,"n":"Keyson Neri de Carvalho","t":"Turma 1","a":"CABEDDCCDCEBCDAEBCECDCAECACBDAEDABECABDACDCCEBDBCC","c":"00101010000110001001100000000001000110000000100000"},{"id":1216,"n":"Mariana Correia de Souza","t":"Turma 1","a":"ACEDEEBAABDECACDBDCEEABEDCEEDAECC*AABCAEDCEBACB-DA","c":"01000000010010111100010011000000000001000001000000"},{"id":1337,"n":"Mayra Christine Mondego Martins","t":"Turma 4","a":"CBBADADBECBB*CCADECBDAEDBCDEBDACBCEDBAC*DBCDABEDCA","c":"00101100000101100000110001100000100000100000000000"},{"id":1305,"n":"Samara Borges de Lima","t":"Turma 1","a":"CBBDEEDDDBDCBCBEDBEDAABDDCBCDDCBDACBDECAEAECCCADDA","c":"00100001010001000000010011000010000000101100000000"},{"id":1269,"n":"Vitória Morais de Oliveira","t":"Turma 1","a":"BDB*DAAACEEBCBCCAABAEAABBBDCDCBBDABBEDCDCABDCEDECA","c":"10101100000110100000010000100000000000100100000000"},{"id":1245,"n":"Ana Alice da Silva Reis","t":"Turma 2","a":"BBAADAAAABEECDCABCABABDAAACBCACBABBAEEBDAACADAAEDA","c":"10001100010010101010000000000010000000000100000000"},{"id":1308,"n":"Lucas de Jesus Paulo Sousa","t":"Turma 4","a":"AAAAAEAEACEACCABBDCECCDDCCBBDDBCBCBBBCBACADCCADEED","c":"00000000000011001100000001000000100001000110000000"},{"id":548,"n":"Marcos Antonio de Araujo Ribeiro","t":"Turma 4","a":"CEBDDEABCEBEEABBBDDCEDBDEBDEDEAACAEBEEAECAADDBCCDE","c":"00101000000000001101000000100000000000000100001001"}]};
+const DATA2 = {"titulo":"2º Simulado 2026","totalQuestoes":50,"gabarito":"ABACCCDBAEDEAEDDECDEACBECBBCADECADCABCBAAABECCEDBA","disciplinas":[{"nome":"ATUALIDADES","ini":1,"fim":5},{"nome":"BIOLOGIA","ini":6,"fim":10},{"nome":"INTERPRETAÇÃO DE TEXTO","ini":11,"fim":21},{"nome":"HISTÓRIA","ini":22,"fim":26},{"nome":"GEOGRAFIA","ini":27,"fim":31},{"nome":"MATEMÁTICA","ini":32,"fim":38},{"nome":"GRAMÁTICA","ini":39,"fim":40},{"nome":"QUÍMICA","ini":41,"fim":45},{"nome":"FÍSICA","ini":46,"fim":50}],"alunos":[{"id":1261,"n":"Lucas Borges de Jesus","t":"Turma 3","a":"ABACCCDBAEDEAEDDECCEACBECBBCADECBDCABCBAAABECCEADA","c":"11111111111111111101111111111111011111111111111001"},{"id":1320,"n":"Ester Marcondes de Lima Costa","t":"Turma 4","a":"ABACCCDBBEEEAEDDECDEACBECBBCADECADCABCBAAABECCDAAB","c":"11111111010111111111111111111111111111111111110000"},{"id":1290,"n":"Maria Ysabell Sodré de Andrade","t":"Turma 3","a":"ABACCEDBBEDDAEDDECDEECBECBBCADECADCABCBAABBECCDABA","c":"11111011011011111111011111111111111111111011110011"},{"id":1384,"n":"Fhilipe de Souza dos Santos","t":"Turma 1","a":"ABACCBDACEDEAEDAECDEACBECBECADECADCABCBAABBBCCACCA","c":"11111010011111101111111111011111111111111010110001"},{"id":1278,"n":"Emerson Santana Duraque","t":"Turma 2","a":"ABA*CCDEBEDEAEDDECDEACBECBBCADECBDCADDBDCABACCABBA","c":"11101110011111111111111111111111011100100110110011"},{"id":1295,"n":"Gabriel Nobrega de Sá","t":"Turma 3","a":"ABACCBDBDEDEAEDDECCEECBECBBCADECADCCBDBAACBDCABACA","c":"11111011011111111101011111111111111010111010100001"},{"id":1389,"n":"Olivia Hirai Guimarães","t":"Turma 1","a":"ABACCCDDCEDEAEDDECDEACBECBBCADECDDCBACCDACAECCDEDE","c":"11111110011111111111111111111111011001001001110000"},{"id":1301,"n":"Carlos Eduardo Souza Ribeiro","t":"Turma 3","a":"AEACCCDBCEDEAEDDECDEABBECBBCABEADBCAACBDAADDCCAABE","c":"10111111011111111111101111111010001101101100110010"},{"id":1280,"n":"Laura Martins Alencar","t":"Turma 3","a":"ABACCCDDEEDEAEDDECDDACBECBBDADEDACCDDCCAABBCCCAADA","c":"11111110011111111110111111101110101001011010110001"},{"id":1240,"n":"Lívia Sant'Anna Ferreira","t":"Turma 2","a":"ABACCCDACEDEAEDDAACEACBECBBCAAECADCABCBCCDDBDCBDEA","c":"11111110011111110001111111111011111111100000010101"},{"id":1252,"n":"Maria Luiza Torres Monteiro","t":"Turma 2","a":"AEACCCDDAEDEAEDDECCEABBECBCBAEECBCCDBABAAEBEDCCDBA","c":"10111110111111111101101111001011001010111011010111"},{"id":1285,"n":"Matheus Alves Campos","t":"Turma 4","a":"AACECCADAEDEAEDDECBEACBECBBCABBAADCACCCAAADECCAABA","c":"10001100111111111101111111111000111101011101110011"},{"id":1226,"n":"Pedro Henrique Rocha Batista","t":"Turma 1","a":"ABACCBDDAEDEAEDDECCDACBECBBCADECADCCAABDDDBBDCADEA","c":"11111010111111111100111111111111111000100010010101"},{"id":1294,"n":"Allana Eduarda Coutinho dos Santos","t":"Turma 3","a":"ADACCBDBEEDEAEDEECCEACBECBBCADECDCEBBBBDADDECBEBBA","c":"10111011011111101101111111111111000010101001101011"},{"id":1299,"n":"Carlos Eduardo Silva e Silva","t":"Turma 4","a":"ABACCADCCEDEAEDDECDEDBBECCBCADECADCBADBBDACECCEECD","c":"11111010011111111111001110111111111000100101111000"},{"id":1274,"n":"Kizy Thauane Nunes da Silva","t":"Turma 2","a":"ABACCCDAAEDEAEEDECCEABBECBBCAEECBDCCDDBADDBECEAABC","c":"11111110111111011101101111111011011000110011100010"},{"id":1333,"n":"Manuella Silvério dos Santos","t":"Turma 3","a":"ABACCADEEECCAEDDEDCEDBBECBBCADBAADCABCBAAABECAAAAA","c":"11111010010011111001001111111100111111111111100001"},{"id":1307,"n":"Riquelme Andre da Silva França","t":"Turma 3","a":"ABACCCDDDEDCAEDDACADBCBECBBCCDBCADCCBCBAAAEECABABB","c":"11111110011011110100011111110101111011111101100010"},{"id":1336,"n":"Geovanna Borges Albarrassim","t":"Turma 4","a":"BEACCCDAAEDEAEDDAECEAEBECBDCADEAACBAACBDAABECEDABA","c":"00111110111111110001101111011110100101101111100011"},{"id":1267,"n":"Julia da Silva Barros","t":"Turma 2","a":"ABACCBDABBDEAEDDECDEAABECBECADECDCCBBABDACBECADDAB","c":"11111010001111111111101111011111001010101011100100"},{"id":1249,"n":"Mirella Borges de Cezar","t":"Turma 4","a":"AEACCADDDEDCAEDDECCEDBBECBBCADECADCDACBAEBBE*CAACA","c":"10111010011011111101001111111111111001110011010001"},{"id":1275,"n":"Yasmin Kauany Nunes dos Santos","t":"Turma 2","a":"AEACCBDBCEDEAEDEECCDACBECBBCABECBDCABDBADBBCCAEBAC","c":"10111011011111101100111111111011011110110010101000"},{"id":1277,"n":"Alan Santos Souza","t":"Turma 3","a":"ABACCBDDDBDDAEDDECCEDBBECBBCADDBDCCDCDBAAABECDEDBB","c":"11111010001011111101001111111100001000111111101110"},{"id":1322,"n":"Júlio César de Sousa Silva","t":"Turma 3","a":"AEACCADBCEDEAEEDACDEDACECBBCACECCDCBBDDAAABEDDEABE","c":"10111011011111010111000111111011011010011111001010"},{"id":1256,"n":"Rogerio Pinheiro Zadravec","t":"Turma 2","a":"AEAECBADDEDDAEDDACDEEBCECBBCABECBDCABABAAABECCABCA","c":"10101000011011110111000111111011011110111111110001"},{"id":1229,"n":"Kennedy de Souza Lopes","t":"Turma 1","a":"ABACCBAAEEDEAEDDECCEACBECBBCAEEDADBBABBACCCECCDAEB","c":"11111000011111111101111111111010110000110001110000"},{"id":1258,"n":"Lizzie Cristina do Nascimento Silva","t":"Turma 2","a":"ABACCCDAAEDAAEEDECDECCBECBBCADBBEEBCEBCDAACECDAEBA","c":"11111110111011011111011111111100000000001101100011"},{"id":1212,"n":"Ana Giullia Rodrigues Roza","t":"Turma 1","a":"DBACCBDDDEDEAEDDECDEACAECBBAABECDDBAABEAEACEAAACDA","c":"01111010011111111111110111101011010100010101000001"},{"id":1304,"n":"Enzo Vieira França","t":"Turma 3","a":"ABACBADEDEDCAEDDECCDACDECBBCADACADCAADBBABBBAADAAA","c":"11110010011011111100110111111101111100101010000001"},{"id":1332,"n":"Evellyn Magalhães Souza","t":"Turma 1","a":"ABACCBDADEDAAECDECCEACBECBBCAAECDCEDCBBAABBCCDEAEE","c":"11111010011011011101111111111011000000111010101000"},{"id":1232,"n":"Isabella da Silva Santos","t":"Turma 1","a":"CBACCADACEDEAEDDEDCEDBBECBBCADECAECDAABAEBBBCCAADE","c":"01111010011111111001001111111111101000110010110000"},{"id":1302,"n":"Luiz Carlos da Silva Sousa","t":"Turma 2","a":"ABACCBDCDEDEAEDDECCDEBBECBBCADEBBCDADDB*ABBBCBCABA","c":"11111010011111111100001111111110000100101010100011"},{"id":1378,"n":"Gabrieli Fernandes Cavalcante","t":"Turma 3","a":"AEACCABDBEEEAEDDECDEABBECBDDAAEDDACDBBBAAABECBCEAE","c":"10111000010111111111101111001010001010111111100000"},{"id":1288,"n":"Jamilly Vitoria Salles Silva","t":"Turma 3","a":"ABACCBAAADDEAEDEEDCEECBBCBBBADBCEDAAABBAABDECBABBA","c":"11111000101111101001011011101101010100111001100011"},{"id":1207,"n":"Kauanny Lima Matos","t":"Turma 1","a":"ABACCBDAEEDEAEDCECCEACBECBBCADEAEDBCEDBDBBAECBAEDE","c":"11111010011111101101111111111110010000100001100000"},{"id":1334,"n":"Kevillyn Beatriz Souza de Lima Oliveira","t":"Turma 4","a":"ABACCBDBCEDEAEDDECDEDABECBBCADEBDCADEBEDDDBECEAEAC","c":"11111011011111111111001111111110000000000011100000"},{"id":1219,"n":"Larissa Arevalo da Silva","t":"Turma 1","a":"AEACCBBDBEDBAEDDECDEACBECBBCDDDACBBCBDBDAABDCCBAAE","c":"10111000011011111111111111110100000010101110110000"},{"id":1379,"n":"Matheus Alves Vieira dos Santos","t":"Turma 2","a":"ADACCBDAEEDEAEEDEDDDABADCBDCADECDDCEACBADEBBCCEADB","c":"10111010011111011010100011011111011001110010111000"},{"id":1321,"n":"Mirella Vitória Gomes Aguilar","t":"Turma 4","a":"ABACCEDDEEDDAEDDACCEACBECCBCACECBCCBABBDACDBCCDADA","c":"11111010011011110101111110111011001000101000110001"},{"id":1231,"n":"Thiago Diniz Santos","t":"Turma 3","a":"ABACBEDDAEDEAEDDECDBAAEECBEDADECACACCCBDABCEADBABE","c":"11110010111111111110100111001111100001101001000010"},{"id":1234,"n":"Carolina Fernandes Passos","t":"Turma 2","a":"DBACCADADEDAAEDAACCEABBBCBBCADECC-ADABBAACBECDCBCA","c":"01111010011011100101101011111111000000111011100001"},{"id":1338,"n":"Gabriel Vasconcelos de Mello","t":"Turma 1","a":"ABACCBDAEECEAEACACDADCBECBBCADBCCDCACCCAAD*BCAAACB","c":"11111010010111000110011111111101011101011000100000"},{"id":1239,"n":"Aleffe Adriano Gomes da Silva","t":"Turma 2","a":"ABCCBCDAEECBBADDECDDDBBECBABAAECEDBACDBAACBECBBEBA","c":"11010110010000111110001111001011010100111011100011"},{"id":1248,"n":"Ana Julia dos Santos Silva","t":"Turma 2","a":"CBACCBCEDEDEAEEDEECDADBDCBBCACECADBCDBBDACBDACECDA","c":"01111000011111011000101011111011110000101010011001"},{"id":1210,"n":"Anna Júlia Marcelino dos Santos","t":"Turma 1","a":"ABACCBAABEDEAEDDEBCEACCECBBEAABABCCDBABADEBBCAABAA","c":"11111000011111111001110111101000001010110010100001"},{"id":1325,"n":"Guilherme Rodrigues Rocha","t":"Turma 4","a":"ACBECBDDDEDDAEADEBCEDDBECBBCAEECDCDAADBBAABECAAABA","c":"10001010011011011001001111111011000100101111100011"},{"id":1202,"n":"Israel Mendes da Silva Abreu","t":"Turma 1","a":"AECDDBABDDDCAECDEBDEACBECABCADBCDBCACBBABBBDCCEAEA","c":"10000001001011011011111110111101001100110010111001"},{"id":1262,"n":"Jonathan Gonçalves da Silva","t":"Turma 2","a":"AAECBBDAAEDAAEDDEDCEACBECBBCAEECDCCBDBBADDDBC*AAEA","c":"10010010111011111001111111111011001000110000100001"},{"id":1311,"n":"João Victor de Souza Santos","t":"Turma 4","a":"ADACCEDCDEDEBEDDEDDEABEDCABCCDAACDCBBDCAADBBCDACBA","c":"10111010011101111011100010110100011010011010100011"},{"id":1213,"n":"Júlio Nobre Ribeiro","t":"Turma 4","a":"ABACBBDADEDEAEDDECCDABBECDBCAEECEECEAABADACDCDAACC","c":"11110010011111111100101110111011001000110100100000"},{"id":1224,"n":"Maria Clara de Freitas Nepomuceno","t":"Turma 4","a":"ABECCAABDBDAAEDAACDDDBBECBBEADBCEDCCABBAAABECDCAAE","c":"11011001001011100110001111101101011000111111100000"},{"id":1246,"n":"Yasmim Camilly Lima Cavalcanti","t":"Turma 1","a":"ADACCBAACDDBAEDEAADEEBBECDBCBDECEDCCADBAAEBECCDCBC","c":"10111000001011100011001110110111011000111011110010"},{"id":1303,"n":"Anna Julia Nogueira da Silva","t":"Turma 3","a":"ABAECDADCECEAEDDADCEDABECBBCADEBACCEABBDDEDECC*AAA","c":"11101000010111110001001111111110101000100001110001"},{"id":1289,"n":"Kariely Claisa Butrón Gutierrez","t":"Turma 3","a":"ABACCBDCEBBBAAACEDCEADBECDBCAEECDDCABBBDCBBECDAABD","c":"11111010000010001001101110111011011110100011100010"},{"id":1337,"n":"Mayra Christine Mondego Martins","t":"Turma 4","a":"ABCCCBEAEECEAEDDCDCEABBECADCCDCDABBACCBACABCDEBDBA","c":"11011000010111110001101110010100100101110110000111"},{"id":1298,"n":"Vitor Marques Alves","t":"Turma 4","a":"ADACCBDDCECEAEDDECCEACBECBBCAEEDBCACEDBDCCBADDBADA","c":"10111010010111111101111111111010000000100010000001"},{"id":1340,"n":"Yasmin Cardoso Tigre","t":"Turma 3","a":"ABACCCDAEEDEAAEDECDEABBECBACADBECCCBABCDABCEEACECD","c":"11111110011110011111101111011100001000001001000000"},{"id":1215,"n":"Emilly Oliveira Santos","t":"Turma 1","a":"ABACCCDADEABAAEEECDDDCBACBDCADCDACDCADEABEBECCBDCC","c":"11111110010010001110011011011100100000010011110100"},{"id":1244,"n":"Kamilly Cristina Neves de Oliveira","t":"Turma 2","a":"ABDDCCDEEEDECECDECCEDADECABCAAEDEDDCABBCABBBACCDBD","c":"11001110011101011101000110111010010000101010010110"},{"id":1309,"n":"Melissa Helena Costa Machado","t":"Turma 3","a":"ABACDDDEEBDEBEDDECDEADBECBAAEDAABEDBADEAEABACCDBAA","c":"11110010001101111111101111000100000000010110110001"},{"id":1335,"n":"Yasmin Cocarelli de Assis","t":"Turma 4","a":"DAAECBAAEEDCAEDAEADEDDEECABCAAEACDCCADBDAABACAEBBA","c":"00101000011011101011000110111010011000101110101011"},{"id":1323,"n":"Bruna Milena Laureano Silva","t":"Turma 1","a":"ABECCBBAEBDAAEDCECCEABEACBBCAACDDBAEACBDAABECBAAAA","c":"11011000001011101101100011111000000001101111100001"},{"id":1331,"n":"Esther Ferreira dos Santos","t":"Turma 4","a":"ABACCBDBBDDEAEEEEEBEEDDECBBDABDCEEEDADBAEADECABCCA","c":"11111011001111001001000111101001000000110101100001"},{"id":1339,"n":"Helena Teixeira Gomes","t":"Turma 2","a":"CAACBCBDDECEAEDDACCDACBECABCABEBCDEBCDBCDBBEBEEDCB","c":"00110100010111110100111110111010010000100011001100"},{"id":1251,"n":"Kaique Barbosa Ferreira da Silva","t":"Turma 2","a":"ADACCCDABEDDAEDAECEDDBBECBECADCCDDBEAACADEDEBDBBCA","c":"10111110011011101100001111011101010000010001000001"},{"id":1227,"n":"Ketelyn de Paiva Teixeira","t":"Turma 1","a":"ABACCBDDDBDBAEEEECBEABBBCBBEAEECACCBADEDEACBAAADCA","c":"11111010001011001101101011101011101000000100000101"},{"id":1317,"n":"Luz Noelia Mamani Lapaca","t":"Turma 4","a":"DBCCCADDBADEAEAEECBDDAEECCBDADEAEDEDABBBAAAECCD*BA","c":"01011010001111001100000110101110010000101101110011"},{"id":1316,"n":"Maria Clara Dias Portes","t":"Turma 4","a":"CEADCBDDEDDEAEDEEEDEAABDCAECADEEAAECAEBACAAECDCECA","c":"00101010001111101011101010011110100000110101100001"},{"id":1329,"n":"Maria Eduarda Leite Correia dos Santos","t":"Turma 4","a":"CBEACADDEECEAEDDECCEACDECABAAEAABCDCBBCDAAAECBEDCB","c":"01001010010111111101110110101000000010001101101100"},{"id":1217,"n":"Murilo Pereira Dias","t":"Turma 1","a":"ADACCEDDCEDEAEDDACCBABBECBADDDEEBCBADDBCAEEECDABEC","c":"10111010011111110100101111000110000100101001100000"},{"id":1205,"n":"Paulo Novais dos Santos","t":"Turma 1","a":"DCACCBAAEEDEAEDDECDDDBBECBDACBBCEDCEABBDDDBDBDBDBA","c":"00111000011111111110001111000001011000100010000111"},{"id":1300,"n":"Rayza Lima de Carvalho","t":"Turma 3","a":"ABACBCCADBCBAEDDECCEADEDCBBBAEBBCDDECDBAEBCECDBDBA","c":"11110100000011111101100011101000010000110001100111"},{"id":1203,"n":"Ryan Lucas Dias do Nascimento Silva","t":"Turma 4","a":"CBACCADDCEDDAEDAAECCBBEECBBCADCEDCCCABCAEABECCBABC","c":"01111010011011100000000111111100001000010111110010"},{"id":1225,"n":"Yasmin Andrade dos Santos","t":"Turma 4","a":"AEACCADDBEDEAEACECDEAABECDEACDDCBCEBACBBDABBEEBEBC","c":"10111010011111001111101110000101000001100110000010"},{"id":1296,"n":"Barbara Cristina Lopes Martins","t":"Turma 3","a":"CBACCADDEBDEAEDDECDDABDECBDCAEBDACEEABBA*EADCBDCAD","c":"01111010001111111110100111011000100000110000100000"},{"id":1287,"n":"Isabella Aidê Ribeiro de Barros","t":"Turma 3","a":"DECCCEDECECDAEEDECCEADBECBBCAEEBEDBCBBEDAEEEAECCCA","c":"00011010010011011101101111111010010010001001000001"},{"id":1257,"n":"Kamilly de Oliveira Carvalho","t":"Turma 2","a":"DEACCADAEEDAAEEEACCEABBBCDBCEDACADDBABBDABBBEDBDCA","c":"00111010011011000101101010110101110000101010000101"},{"id":1220,"n":"Lavinia Souza Guimarães","t":"Turma 1","a":"ABACBDADEADDAEDAACEEAACBCBACADEBDBDBCDBAABBACBCABA","c":"11110000001011100101100011011110000000111010100011"},{"id":1268,"n":"Maria Eduarda Alves da Silva Putumuju","t":"Turma 2","a":"AEECCEADDEDEBEEDEDBEDBBECBBCADBBCDEAABBAEAAEADBBCC","c":"10011000011101011001001111111100010100110101000000"},{"id":1223,"n":"Ryan Miguel de Araújo Lopes","t":"Turma 1","a":"BEBCCCEDBDDEAEADEDCAACBACBACABEADCDBADBDACBBCDEDEA","c":"00011100001111011000111011011010000000101010101101"},{"id":1228,"n":"Alyce Lopes Silva","t":"Turma 1","a":"ABACCBBDCBDBAEDEECCDAACECBBCEBECBDBCCDBAADCBDEDCAC","c":"11111000001011101100100111110011010000111000000000"},{"id":1272,"n":"Emilli Pereira Rocha","t":"Turma 2","a":"BBCCEBEDAEDBAEACECCDACEBCBBEADEAEDBCADBADDBEEDEECE","c":"01010000111011001100110011101110010000110011001000"},{"id":1254,"n":"Heloisa Videira Machado","t":"Turma 3","a":"AEAACADAEEDEAEDCECDEDBBECBEBCBEBBEDEABCAEBCECDBCBE","c":"10101010011111101111001111000010000000010001100010"},{"id":1216,"n":"Mariana Correia de Souza","t":"Turma 1","a":"BEEDCEDCAADBAEADAC*EDCAECEBAEDECBEBAECBAACCDECBECA","c":"00001010101011010101010110100111000101111000010001"},{"id":1221,"n":"Thauany de Carvalho Neri","t":"Turma 1","a":"DBACCBDACECAAEAEEDCEABBECBBDACEADDBC-DABBDBEAAEDAC","c":"01111010010011001001101111101010010000000011001100"},{"id":1310,"n":"Yasmin Fernandes de Moura","t":"Turma 3","a":"AEAECCCAEEDDAEDECCCDADEECCBCAEAAEDDCEDDAACDECCEACB","c":"10101100011011100100100110111000010000011001111000"},{"id":1214,"n":"Arthur Albuquerque","t":"Turma 1","a":"DBACCBAADEDDAEDEADDEABBDCBBDCAEECDAEABBACECACCABCE","c":"01111000011011100011101011100010010000110000110000"},{"id":1235,"n":"Ellyson Gutierrez Condori","t":"Turma 2","a":"BBECBCCDCECEAEADACCDDBEECBBCBEBCEEBDABBBAACBCCBDCA","c":"01010100010111010100000111110001000000101100110101"},{"id":1330,"n":"Gustavo Henrique Anselmo do Nascimento","t":"Turma 4","a":"BEECCDEABBCBBEEDEDDEDBBECCCCAEBABDCCADBDABBECCAABA","c":"00011000000001011011001110011000011000101011110011"},{"id":1273,"n":"Maria Ester Cano Morales","t":"Turma 4","a":"ABCCCCDCBEDBBECEEDDEDEBEDBDCBEDCBEBBDBBADBCACAEABC","c":"11011110011001001011001101010001000000110000101010"},{"id":1324,"n":"Sarah Alves de Carvalho","t":"Turma 4","a":"DEACCBDCAEDAAEDDADCEAACDCECDAEEBEECBCBBDDABAECEADE","c":"00111010111011110001100010001010001000100110011000"},{"id":1209,"n":"Anna Beatriz dos Santos Pereira","t":"Turma 1","a":"CEBACBADEACBBEDDECCEBBBECCACAEECCEEBABBAAAEEABADDA","c":"00001000000001111101001110011011000000111101000101"},{"id":1264,"n":"Arthur Alves dos Santos","t":"Turma 4","a":"ABCCABCDEBCEAECDBDDEEABECDBCACDCACBBAACADDBACDBEBB","c":"11010000000111010011001110111001100000010010100010"},{"id":1319,"n":"Brenda Martins dos Santos","t":"Turma 3","a":"ABACCABACBDAAEDDECDEBBBBCAACBBCCCEDBABBBABCBBEDCBB","c":"11111000001011111111001010010001000000101000000010"},{"id":1265,"n":"Emilly Angeli da Silva","t":"Turma 2","a":"ABBCCBDDEEACBEECECDEDAEBCBDCEEECEDCDCDBACEEBBDBCBE","c":"11011010010001001111000011010011011000110000000010"},{"id":1328,"n":"Marcela Oliveira Levino Tenca","t":"Turma 4","a":"DCECCCDEECCDAEEEACCEACEBCBDCAABEBBBBABBAACBEABECCA","c":"00011110000011000101110011011000000000111011001001"},{"id":1260,"n":"Maria Luiza Cesar Sabino","t":"Turma 2","a":"AEACCBDAEEDEAEED*CBEDCCBCDBCDCEEEDCBDDCBEBDAEACEBD","c":"10111010011111010101010010110010011000000000000010"},{"id":1283,"n":"Jose Vaelison de Oliveira Pereira","t":"Turma 3","a":"DBACBCDDBBDBACACEBDADBCBCBACDECBACADBACADAAECBCDDA","c":"01110110001010001010000011010000100010010101100101"},{"id":1315,"n":"Monike Gabrielly da Silva Bezerra","t":"Turma 3","a":"DBECCEADBEDDAEDECCCEEACECBBBAEECDADDCDBBEBDEDDAABD","c":"01011000011011100101000111101011000000100001000010"},{"id":1377,"n":"Arthur Alexandre Moraes de Oliveira","t":"Turma 3","a":"DAADCCEDAEDABDDEECBEEBBAADBCADCBECAAAEAADDDCBDACBA","c":"00101100111000101101001000111100000100010000000011"},{"id":1263,"n":"Carolina Santos do Carmo","t":"Turma 2","a":"ABAECCDABBCECAABCBCDDABECCBDBDBCDADBBCBCEAABCEBBCA","c":"11101110000100000000001110100101000011100100100001"},{"id":1206,"n":"Henrique Costa Meira","t":"Turma 1","a":"CEAEBBDDEEDDAEDEECCDDBBACCACCCACADCBCBEDDDDEADDCBA","c":"00100010011011101100001010010001111000000001000011"},{"id":1284,"n":"Isis Larissa dos Santos Silva","t":"Turma 4","a":"BEEDCBBAAACDAEDDECDEAAABCABEACEDDECDADBBACECBAABBE","c":"00001000100011111111100010101010001000101000000010"},{"id":1292,"n":"Vitoria Moraes Malosti","t":"Turma 3","a":"BDADBCDAABBBBEAEEBEDDCBECCACCBBCABBBDDBACEBCACEAAA","c":"00100110100001001000011110010001100000110010011001"},{"id":1381,"n":"Alessandra Silva Lima","t":"Turma 1","a":"ABEDBABAEBCEAEACECBEACBBEDCCAAABDCDEADBDABBBECCCEA","c":"11000000000111001101111000011000000000101010010001"},{"id":1293,"n":"Ana Vitoria Fernandes dos Santos","t":"Turma 3","a":"BCACCBAAAEDEAAEDACDEDBCDCBCEBBBAEBEBADBAB*CECDAB*E","c":"00111000111110010111000011000000000000110001100000"},{"id":1270,"n":"Camila de Andrade Dutra Apolinario","t":"Turma 2","a":"EBACCBDDBDDCAEAEACAEABCECBBADAEEEDBCCACAECCCBBACAB","c":"01111010001011000101100111100010010000010000000000"},{"id":1341,"n":"Thamires Rodrigues de Oliveira","t":"Turma 3","a":"ADCDCBDEBECBBEACECCEEBEDCDBACBCAEDABAABAABBECADEBB","c":"10001010010001001101000010100000010000111011100010"},{"id":1204,"n":"Ana Beatrys de Lima Costa","t":"Turma 1","a":"CBCBCDEDEDDDACDDADCEADBBCCDCEEBBCDECDD*AACAECBAEAD","c":"01001000001010110001101010010000010000011001100000"},{"id":548,"n":"Marcos Antonio de Araujo Ribeiro","t":"Turma 4","a":"DBEACECBADBECEAECABDACBEAAACBCBBEDCECDABDCBDCDCDED","c":"01001001100101000000111100010000011000000010100100"},{"id":1269,"n":"Vitória Morais de Oliveira","t":"Turma 1","a":"DCBCCBBACDDAAAAEECCEAACCCBDCADACECECDCBDBBDBBAAEAC","c":"00011000001010001101100011011101000001100000000000"},{"id":1376,"n":"Yuri Alves Olegario","t":"Turma 2","a":"DAECACBADECDCADDECBBDDDEBCBAAAAEEDAEEBDADBBCCDBCBA","c":"00010100010000111100000100101000010000010010100011"},{"id":1241,"n":"Maria Eduarda do Nascimento Bonfim","t":"Turma 2","a":"CBEBCADDBCCCAACEECCEDBEDCAECAEED*AEAABBBADAAEBBDCE","c":"01001010000010001101000010011010000100101000000100"},{"id":1276,"n":"Rayssa Soares da Costa","t":"Turma 3","a":"ABCCBCABDBCBBEBDAEADDBBBEDCCAAABDCBEADBDADBBECCCEA","c":"11010101000001010000001000011000000000101010010001"},{"id":1243,"n":"Sabena Ifeoma da Silva Ibe","t":"Turma 2","a":"ABACCBDEBADBCEADCACEDAEBCCBCBEADECBBABCBBACAEBBACA","c":"11111010001001010001000010110000000000000100000001"},{"id":1245,"n":"Ana Alice da Silva Reis","t":"Turma 2","a":"ABABCADBADCCAEACADECED-DBABABBCEDECBAABBCDDABCDDDE","c":"11101011100011000000000000100000001000100000010100"},{"id":1281,"n":"Julia Vitoria Bueno da Silva Ferreira","t":"Turma 3","a":"AACCCBDDCEDDCEEE*DDEDCDBADCDAEDDCCCDCDCAD*DBCADCCE","c":"10011010011001000011010000001000001000010000100000"},{"id":1255,"n":"Maria Eduarda Oliveira Ribeiro","t":"Turma 2","a":"AEBCCBDABECEBEBCECDDBBBCBACDCEABDCCDCDBBAEDCEBDCDB","c":"10011010010101001110001000000000001000101000000000"},{"id":1313,"n":"Matheus de Souza Basilio Lopes","t":"Turma 4","a":"ABBCBBDDCCDDBCCBCCBDECAECDABCEBBEDEBADBCAEDACBAAAA","c":"11010010001000000100010110000000010000101000100001"},{"id":1382,"n":"Vitória Gomes","t":"Turma 1","a":"DCBCCBBAADDCAEACADCEDCACCDECBDEBDCDEADBBEBACBCDADE","c":"00011000101011000001010010010110000000100000010000"},{"id":1327,"n":"Wendy Rosiani Cussi Loza","t":"Turma 4","a":"ABCECBAABBDDAEAAECDDDBDACABACEAEECEEAABDCCEACABECA","c":"11001000001011001110000010100000000000100000100001"},{"id":1297,"n":"Isaac Mendonça Santos Neres","t":"Turma 3","a":"ABBCCADDEBAACEBCADDEDABCCABACABABABDCDCBACAABBEBAC","c":"11011010000001000011001010100000000000001000001000"},{"id":1308,"n":"Lucas de Jesus Paulo Sousa","t":"Turma 4","a":"CDCCACADBECDABBDEDBDAEABCDBECAAEEECCCDAAACABEBBDDB","c":"00010100010010011000100010100000001000011000000100"},{"id":1222,"n":"Milena Oliveira dos Santos","t":"Turma 1","a":"BBACDCEDBACBDAADCBBBDCEDDABECDEBDCBAABDEDBCECDBCBD","c":"01110100000000010000010000100110000100000001100010"},{"id":1236,"n":"Bruno de Melo","t":"Turma 3","a":"DEEEBBEABACDCAECACCCEDADCBEEBDCEADCCECEDCAABECEABC","c":"00000000000000000100000011000100111001000100011010"},{"id":1386,"n":"Esther Sophia da Silva","t":"Turma 1","a":"AABABDBDEAADAEEDECAADDDCCCDCEBEDDCCDCEBDDDCCCBCCCB","c":"10000000000011011100000010010010001000100000100000"},{"id":1385,"n":"Luiz Guilherme da Silva","t":"Turma 4","a":"BDACEABECCDBAACCECCDDADDBADECBACBCEDCBBCCEDADAECBA","c":"00110000001010001100000000000001000000100000001011"},{"id":1238,"n":"Keyson Neri de Carvalho","t":"Turma 1","a":"BEADBEADCADCCEBADDADDADBDABA*BBDCDACACAECEBCDAEDBC","c":"00100000001001000000000000100000010001000010001110"}]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f1 = x => x.toFixed(1).replace('.', ',');
+const pct = (x,y) => y ? (x/y)*100 : 0;
+const curto = n => n.split(' ')[0];
+function cont(str, ini, fim){ let n=0; for (let i=(ini||1)-1;i<(fim||str.length);i++) if (str[i]==='1') n++; return n; }
+const corPct = p => p>=80?'#16713a':p>=60?'#4a9a4f':p>=50?'#c8a415':p>=40?'#e8842a':p>=20?'#d81f26':'#8e1015';
+const classePct = p => p>=60?'p-alto':p>=40?'p-medio':'p-baixo';
+const corDelta = d => d>=15?'#16713a':d>=5?'#4a9a4f':d>-5?'#8a9099':d>-15?'#d81f26':'#8e1015';
+const sinal = v => (v>=0?'+':'') + f1(v);
+const LIMIAR = 5; // margem de estabilidade, em pontos percentuais — abaixo disso o aluno/turma é considerado "estável"
+function tendencia(delta){
+  if (delta > LIMIAR) return { r:'Subiu', c:'evo-sobe' };
+  if (delta < -LIMIAR) return { r:'Caiu', c:'evo-cai' };
+  return { r:'Estável', c:'evo-estavel' };
+}
+
+/* --- indexação --- */
+const map1 = new Map(DATA1.alunos.map(a => [a.id, a]));
+const map2 = new Map(DATA2.alunos.map(a => [a.id, a]));
+const comuns = [...map1.keys()].filter(id => map2.has(id));
+const so1 = [...map1.keys()].filter(id => !map2.has(id));
+const so2 = [...map2.keys()].filter(id => !map1.has(id));
+/* disciplinas em comum, por nome (defensivo — hoje a estrutura é idêntica nos dois arquivos) */
+const DISC = DATA1.disciplinas.filter(d => DATA2.disciplinas.some(x => x.nome === d.nome))
+  .map(d => ({ nome:d.nome, r1:d, r2: DATA2.disciplinas.find(x=>x.nome===d.nome) }));
+/* turma "atual" do aluno: a do 2º simulado quando existir, senão a do 1º */
+const turmaAtual = id => (map2.get(id) || map1.get(id)).t;
+const TURMAS = [...new Set([...DATA1.alunos.map(a=>a.t), ...DATA2.alunos.map(a=>a.t)])].sort();
+
+const estado = { turma:'', disc:'', nome:'', escopo:'comuns' };
+const graficos = {};
+function pintar(id, cfg){ if (graficos[id]) graficos[id].destroy(); graficos[id] = new Chart(document.getElementById(id), cfg); }
+function discAtual(list){ return estado.disc ? list.find(d=>d.nome===estado.disc) : null; }
+
+/* cohort completa de um simulado, respeitando o filtro de turma */
+function cohort(data){ return data.alunos.filter(a => !estado.turma || a.t === estado.turma); }
+/* faixa de questões ativa (toda a prova ou a disciplina selecionada), por simulado */
+function faixa(data){ const d = discAtual(data.disciplinas); return d ? [d.ini,d.fim] : [1, data.totalQuestoes]; }
+function pcAluno(a, data){ const [i,f] = faixa(data); return pct(cont(a.c,i,f), f-i+1); }
+
+/* alunos comuns respeitando turma (atual) e nome */
+function comunsFiltrados(){
+  return comuns.filter(id => {
+    const t = turmaAtual(id);
+    return (!estado.turma || t === estado.turma) && (!estado.nome || (map1.get(id).n).toLowerCase().includes(estado.nome));
+  });
+}
+
+function montarTopo(){
+  document.getElementById('topoMeta').innerHTML = [
+    ['1º Simulado', DATA1.alunos.length], ['2º Simulado', DATA2.alunos.length], ['Comuns aos dois', comuns.length]
+  ].map(([r,v]) => `<div class="chip">${r} <b>${v}</b></div>`).join('');
+}
+
+function montarAviso(){
+  document.getElementById('avisoMetodologia').innerHTML = `
+    <b>Como este comparativo foi montado</b>
+    <ul>
+      <li>Correspondência entre os alunos é feita pela matrícula (mesmo identificador nas duas provas), não pelo nome — evita juntar pessoas diferentes por coincidência de grafia.</li>
+      <li><b>${comuns.length} alunos</b> fizeram os dois simulados e podem ser comparados diretamente. <b>${so1.length}</b> só têm registro no 1º e <b>${so2.length}</b> só no 2º — a ausência de registro não é tratada como falta ou queda de desempenho, apenas como dado indisponível.</li>
+      <li>Evolução individual, comparativo por disciplina e distribuição de evolução usam <b>apenas os alunos comuns</b>, para comparar exatamente a mesma pessoa. Participação, média geral e comparativo por turma usam a <b>coorte completa</b> de cada simulado, já que refletem a turma como um todo.</li>
+      <li>Margem de estabilidade: variações entre <b>-${LIMIAR} e +${LIMIAR} pontos percentuais</b> são classificadas como "Estável"; fora dessa faixa, como "Subiu" ou "Caiu". O critério é o mesmo em todo o painel.</li>
+      <li>As duas provas têm a mesma estrutura de disciplinas e as mesmas 50 questões numeradas, o que torna a comparação por percentual de acerto válida disciplina a disciplina.</li>
+    </ul>`;
+}
+
+function montarFiltros(){
+  const st = document.getElementById('fTurma');
+  TURMAS.forEach(t => st.insertAdjacentHTML('beforeend', `<option value="${esc(t)}">${esc(t)}</option>`));
+  const sd = document.getElementById('fDisc');
+  DISC.forEach(d => sd.insertAdjacentHTML('beforeend', `<option value="${esc(d.nome)}">${esc(d.nome)}</option>`));
+  st.onchange = e => { estado.turma = e.target.value; render(); };
+  sd.onchange = e => { estado.disc = e.target.value; render(); };
+  let t; document.getElementById('fNome').oninput = e => {
+    clearTimeout(t); const v = e.target.value.trim().toLowerCase();
+    t = setTimeout(() => { estado.nome = v; render(); }, 180);
+  };
+  document.querySelectorAll('#segEscopo button').forEach(b => {
+    b.onclick = () => { estado.escopo = b.dataset.v;
+      document.querySelectorAll('#segEscopo button').forEach(x=>x.classList.toggle('on', x===b));
+      render(); };
+  });
+  document.getElementById('btnLimpar').onclick = () => {
+    estado.turma = estado.disc = estado.nome = ''; st.value=''; sd.value=''; document.getElementById('fNome').value='';
+    render();
+  };
+}
+
+/* ---------- KPIs ---------- */
+function renderKpis(){
+  const c1 = cohort(DATA1), c2 = cohort(DATA2);
+  if (!c1.length && !c2.length){ document.getElementById('kpis').innerHTML = '<div class="kpi"><div class="rot">Sem dados</div><div class="val">—</div><div class="sub">Ajuste os filtros</div></div>'; return; }
+  const [i1,f1r] = faixa(DATA1), [i2,f2r] = faixa(DATA2);
+  const tot1 = f1r-i1+1, tot2 = f2r-i2+1;
+  const ac1 = c1.map(a => cont(a.c,i1,f1r)), ac2 = c2.map(a => cont(a.c,i2,f2r));
+  const mAc1 = ac1.length ? ac1.reduce((s,v)=>s+v,0)/ac1.length : 0;
+  const mAc2 = ac2.length ? ac2.reduce((s,v)=>s+v,0)/ac2.length : 0;
+  const mPc1 = pct(mAc1,tot1), mPc2 = pct(mAc2,tot2);
+
+  const cf = comunsFiltrados();
+  const deltas = cf.map(id => pcAluno(map2.get(id),DATA2) - pcAluno(map1.get(id),DATA1));
+  const subiu = deltas.filter(d=>d>LIMIAR).length, caiu = deltas.filter(d=>d<-LIMIAR).length, estavel = deltas.length-subiu-caiu;
+
+  const melhor1 = c1.length ? c1.reduce((a,b)=>cont(a.c,i1,f1r)>=cont(b.c,i1,f1r)?a:b) : null;
+  const melhor2 = c2.length ? c2.reduce((a,b)=>cont(a.c,i2,f2r)>=cont(b.c,i2,f2r)?a:b) : null;
+
+  let melhorEvo=null, piorEvo=null;
+  if (cf.length){
+    const porDisc = DISC.map(d => {
+      const p1 = cf.reduce((s,id)=>s+cont(map1.get(id).c,d.r1.ini,d.r1.fim),0);
+      const p2 = cf.reduce((s,id)=>s+cont(map2.get(id).c,d.r2.ini,d.r2.fim),0);
+      const nq1=d.r1.fim-d.r1.ini+1, nq2=d.r2.fim-d.r2.ini+1;
+      return { nome:d.nome, delta: pct(p2,nq2*cf.length)-pct(p1,nq1*cf.length) };
+    });
+    melhorEvo = porDisc.reduce((a,b)=>a.delta>=b.delta?a:b);
+    piorEvo = porDisc.reduce((a,b)=>a.delta<=b.delta?a:b);
+  }
+
+  const kpis = [
+    ['neutro','Alunos avaliados', `<div class="duo"><b class="s1">${c1.length}</b><span class="seta">→</span><b class="s2">${c2.length}</b></div>`, `${estado.turma||'todas as turmas'} · ${comunsFiltrados().length} comuns`, 1],
+    ['','Média de acertos', `<div class="duo"><b class="s1">${f1(mAc1)}</b><span class="seta">/${tot1} →</span><b class="s2">${f1(mAc2)}</b><span class="seta">/${tot2}</span></div>`, `variação de ${sinal(mAc2-mAc1)} acertos`, 1],
+    ['','Taxa de acertos', `<div class="duo"><b class="s1">${f1(mPc1)}%</b><span class="seta">→</span><b class="s2">${f1(mPc2)}%</b></div>`, `${sinal(mPc2-mPc1)} p.p.`, 1],
+    ['ok','Alunos comuns', comuns.length, `${so1.length} só no 1º · ${so2.length} só no 2º`, 0],
+    ['ok','Evoluíram', subiu, `de ${cf.length} alunos comparáveis no recorte`, 0],
+    ['neutro','Estáveis', estavel, `margem de ±${LIMIAR} p.p.`, 0],
+    ['at','Caíram', caiu, `de ${cf.length} alunos comparáveis no recorte`, 0],
+    ['ok','Melhor no 1º Simulado', melhor1?curto(melhor1.n)+' '+esc(melhor1.n.split(' ').slice(-1)[0]):'—', melhor1?`${cont(melhor1.c,i1,f1r)}/${tot1} · ${esc(melhor1.t)}`:'sem dados', 1],
+    ['ok','Melhor no 2º Simulado', melhor2?curto(melhor2.n)+' '+esc(melhor2.n.split(' ').slice(-1)[0]):'—', melhor2?`${cont(melhor2.c,i2,f2r)}/${tot2} · ${esc(melhor2.t)}`:'sem dados', 1],
+  ];
+  if (!estado.disc && melhorEvo){
+    kpis.push(['ok','Maior evolução por disciplina', melhorEvo.nome, `${sinal(melhorEvo.delta)} p.p. entre os simulados`, 1]);
+    kpis.push(['at','Maior queda por disciplina', piorEvo.nome, `${sinal(piorEvo.delta)} p.p. entre os simulados`, 1]);
+  }
+  document.getElementById('kpis').innerHTML = kpis.map(([c,r,v,s,html]) =>
+    `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val${html?' txt':''}">${html?v:esc(v)}</div><div class="sub">${s}</div></div>`).join('');
+}
+
+/* ---------- por disciplina (alunos comuns) ---------- */
+function statsDisciplinas(){
+  const cf = comunsFiltrados();
+  return DISC.map(d => {
+    const nq1=d.r1.fim-d.r1.ini+1, nq2=d.r2.fim-d.r2.ini+1;
+    const ac1 = cf.reduce((s,id)=>s+cont(map1.get(id).c,d.r1.ini,d.r1.fim),0);
+    const ac2 = cf.reduce((s,id)=>s+cont(map2.get(id).c,d.r2.ini,d.r2.fim),0);
+    const p1 = pct(ac1, nq1*cf.length), p2 = pct(ac2, nq2*cf.length);
+    return { nome:d.nome, nq1, nq2, p1, p2, delta:p2-p1, n:cf.length };
+  });
+}
+function renderDisciplinas(){
+  const linhas = statsDisciplinas();
+  document.getElementById('notaDiscTab').textContent = `${comunsFiltrados().length} alunos comuns no recorte atual`;
+  const baseX = { grid:{display:false}, ticks:{color:'#5d646c',font:{size:10}} };
+  const baseY = { beginAtZero:true, max:100, grid:{color:'#d7dade'}, ticks:{color:'#5d646c',callback:v=>v+'%'} };
+  const corS1 = getComputedStyle(document.body).getPropertyValue('--s1').trim() || '#c88a00';
+  const corS2 = getComputedStyle(document.body).getPropertyValue('--s2').trim() || '#d81f26';
+  pintar('cDisc', { type:'bar', data:{ labels:linhas.map(l=>l.nome), datasets:[
+      { label:'1º Simulado', data:linhas.map(l=>l.p1), backgroundColor:corS1, borderRadius:2 },
+      { label:'2º Simulado', data:linhas.map(l=>l.p2), backgroundColor:corS2, borderRadius:2 }
+    ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, labels:{ color:'#5d646c', boxWidth:12, font:{size:11} } },
+      tooltip:{ callbacks:{ label:c=>`${c.dataset.label}: ${f1(c.parsed.y)}%` } } }, scales:{ x:baseX, y:baseY } } });
+
+  const oe = { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false},
+      tooltip:{ callbacks:{ label:c=>`${sinal(c.parsed.x)} p.p.` } } },
+    scales:{ x:{ grid:{color:'#d7dade'}, ticks:{ color:'#5d646c', callback:v=>(v>0?'+':'')+v+'pp' } }, y:{ grid:{display:false}, ticks:{ color:'#5d646c', font:{size:11} } } } };
+  pintar('cDiscEvo', { type:'bar', data:{ labels:linhas.map(l=>l.nome), datasets:[{ data:linhas.map(l=>l.delta), backgroundColor:linhas.map(l=>corDelta(l.delta)), borderRadius:2 }] }, options:oe });
+
+  document.querySelector('#tabDisc tbody').innerHTML = linhas.slice().sort((a,b)=>b.delta-a.delta).map(l => {
+    const t = tendencia(l.delta);
+    return `<tr><td class="nome">${esc(l.nome)}</td><td class="num">${l.nq1}${l.nq1!==l.nq2?` / ${l.nq2}`:''}</td>
+    <td class="num">${f1(l.p1)}%</td><td class="num">${f1(l.p2)}%</td>
+    <td class="num" style="color:${corDelta(l.delta)};font-weight:700">${sinal(l.delta)} p.p.</td>
+    <td><span class="pill ${t.c}">${t.r}</span></td><td class="num">${l.n}</td></tr>`;
+  }).join('') || '<tr><td class="vazio" colspan="7">Nenhum aluno comum no recorte atual.</td></tr>';
+}
+
+/* ---------- por turma (coorte completa) ---------- */
+function statsTurmas(){
+  const [i1,f1r]=faixa(DATA1), [i2,f2r]=faixa(DATA2);
+  const tot1=f1r-i1+1, tot2=f2r-i2+1;
+  return TURMAS.filter(t=>!estado.turma||t===estado.turma).map(t => {
+    const g1 = DATA1.alunos.filter(a=>a.t===t), g2 = DATA2.alunos.filter(a=>a.t===t);
+    const p1 = g1.length ? pct(g1.reduce((s,a)=>s+cont(a.c,i1,f1r),0), tot1*g1.length) : null;
+    const p2 = g2.length ? pct(g2.reduce((s,a)=>s+cont(a.c,i2,f2r),0), tot2*g2.length) : null;
+    return { t, n1:g1.length, n2:g2.length, p1, p2, delta: (p1!==null && p2!==null) ? p2-p1 : null };
+  });
+}
+function renderTurmas(){
+  const linhas = statsTurmas().filter(l=>l.n1||l.n2);
+  const baseY = { beginAtZero:true, max:100, grid:{color:'#d7dade'}, ticks:{color:'#5d646c',callback:v=>v+'%'} };
+  pintar('cTurma', { type:'bar', data:{ labels:linhas.map(l=>l.t.replace('Turma ','T')), datasets:[
+    { label:'1º Simulado', data:linhas.map(l=>l.p1), backgroundColor:getComputedStyle(document.body).getPropertyValue('--s1'), borderRadius:2 },
+    { label:'2º Simulado', data:linhas.map(l=>l.p2), backgroundColor:getComputedStyle(document.body).getPropertyValue('--s2'), borderRadius:2 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, labels:{ color:'#5d646c', boxWidth:12, font:{size:11} } },
+      tooltip:{ callbacks:{ label:c=>`${c.dataset.label}: ${c.parsed.y===null?'sem dados':f1(c.parsed.y)+'%'}` } } },
+      scales:{ x:{ grid:{display:false}, ticks:{color:'#5d646c'} }, y:baseY } } });
+
+  document.querySelector('#tabTurma tbody').innerHTML = linhas.map(l => {
+    const t = l.delta!==null ? tendencia(l.delta) : null;
+    return `<tr><td class="nome">${esc(l.t)}</td><td class="num">${l.n1||'—'}</td><td class="num">${l.n2||'—'}</td>
+    <td class="num">${l.p1!==null?f1(l.p1)+'%':'—'}</td><td class="num">${l.p2!==null?f1(l.p2)+'%':'—'}</td>
+    <td class="num" style="${l.delta!==null?`color:${corDelta(l.delta)};font-weight:700`:''}">${l.delta!==null?sinal(l.delta)+' p.p.':'—'}</td>
+    <td>${t?`<span class="pill ${t.c}">${t.r}</span>`:'<span class="tag">sem comparação</span>'}</td></tr>`;
+  }).join('') || '<tr><td class="vazio" colspan="7">Nenhuma turma no recorte atual.</td></tr>';
+}
+
+/* ---------- matriz turma x disciplina ---------- */
+function renderMatriz(){
+  const ds = estado.disc ? DISC.filter(d=>d.nome===estado.disc) : DISC;
+  const turmas = TURMAS.filter(t=>!estado.turma||t===estado.turma);
+  document.querySelector('#matrizEvo thead').innerHTML = `<tr><th class="lat">Turma</th>${ds.map(d=>`<th>${esc(d.nome.split(' ')[0])}</th>`).join('')}</tr>`;
+  document.querySelector('#matrizEvo tbody').innerHTML = turmas.map(t => {
+    const g1 = DATA1.alunos.filter(a=>a.t===t), g2 = DATA2.alunos.filter(a=>a.t===t);
+    const cels = ds.map(d => {
+      if (!g1.length || !g2.length) return `<td><span class="cel" style="background:#c3c7cc">—</span></td>`;
+      const nq1=d.r1.fim-d.r1.ini+1, nq2=d.r2.fim-d.r2.ini+1;
+      const p1 = pct(g1.reduce((s,a)=>s+cont(a.c,d.r1.ini,d.r1.fim),0), nq1*g1.length);
+      const p2 = pct(g2.reduce((s,a)=>s+cont(a.c,d.r2.ini,d.r2.fim),0), nq2*g2.length);
+      const dl = p2-p1;
+      return `<td><span class="cel" style="background:${corDelta(dl)}" title="${esc(t)} — ${esc(d.nome)}: ${f1(p1)}% → ${f1(p2)}%">${sinal(dl)}</span></td>`;
+    }).join('');
+    return `<tr><th class="lat">${esc(t)}</th>${cels}</tr>`;
+  }).join('') || '<tr><td class="vazio" colspan="10">Nenhuma turma no recorte atual.</td></tr>';
+}
+
+/* ---------- distribuição de evolução ---------- */
+function renderDistEvo(){
+  const cf = comunsFiltrados();
+  const deltas = cf.map(id => pcAluno(map2.get(id),DATA2) - pcAluno(map1.get(id),DATA1));
+  const subiu = deltas.filter(d=>d>LIMIAR).length, caiu = deltas.filter(d=>d<-LIMIAR).length, estavel = deltas.length-subiu-caiu;
+  document.getElementById('notaEvoDist').textContent = `${cf.length} alunos comuns · margem de ±${LIMIAR} p.p.`;
+  pintar('cEvoDist', { type:'bar', data:{ labels:['Caíram','Estáveis','Evoluíram'], datasets:[{ data:[caiu,estavel,subiu], backgroundColor:['#d81f26','#8a9099','#1e8e4d'], borderRadius:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>`${c.parsed.y} aluno(s)` } } },
+    scales:{ x:{ grid:{display:false}, ticks:{color:'#5d646c'} }, y:{ beginAtZero:true, grid:{color:'#d7dade'}, ticks:{color:'#5d646c'} } } } });
+}
+
+/* ---------- individual ---------- */
+function renderIndividual(){
+  const ids = estado.escopo==='comuns' ? comunsFiltrados()
+    : [...new Set([...comunsFiltrados(), ...so1.filter(id=>(!estado.turma||map1.get(id).t===estado.turma)&&(!estado.nome||map1.get(id).n.toLowerCase().includes(estado.nome))),
+                                          ...so2.filter(id=>(!estado.turma||map2.get(id).t===estado.turma)&&(!estado.nome||map2.get(id).n.toLowerCase().includes(estado.nome)))])];
+  document.getElementById('notaIndiv').textContent = `${ids.length} aluno(s) · ${estado.escopo==='comuns'?'apenas comuns aos dois simulados':'todos, incluindo exclusivos de um simulado'}`;
+  const tb = document.querySelector('#tabIndiv tbody');
+  if (!ids.length){ tb.innerHTML = '<tr><td class="vazio" colspan="7">Nenhum aluno no recorte atual.</td></tr>'; return; }
+
+  const linhas = ids.map(id => {
+    const a1 = map1.get(id), a2 = map2.get(id);
+    const p1 = a1 ? pcAluno(a1,DATA1) : null, p2 = a2 ? pcAluno(a2,DATA2) : null;
+    const delta = (p1!==null && p2!==null) ? p2-p1 : null;
+    let maiorVar = null;
+    if (a1 && a2){
+      const vars = DISC.map(d => {
+        const q1=pct(cont(a1.c,d.r1.ini,d.r1.fim), d.r1.fim-d.r1.ini+1), q2=pct(cont(a2.c,d.r2.ini,d.r2.fim), d.r2.fim-d.r2.ini+1);
+        return { nome:d.nome, delta:q2-q1 };
+      });
+      maiorVar = vars.reduce((a,b)=>Math.abs(a.delta)>=Math.abs(b.delta)?a:b);
+    }
+    return { id, nome:(a1||a2).n, turma:turmaAtual(id), p1, p2, delta, maiorVar };
+  }).sort((a,b) => (b.delta ?? -999) - (a.delta ?? -999));
+
+  tb.innerHTML = linhas.map(l => {
+    const t = l.delta!==null ? tendencia(l.delta) : null;
+    return `<tr class="clic" tabindex="0" data-id="${l.id}">
+      <td class="nome">${esc(l.nome)}</td><td><span class="tag">${esc(l.turma)}</span></td>
+      <td class="num">${l.p1!==null?f1(l.p1)+'%':'—'}</td><td class="num">${l.p2!==null?f1(l.p2)+'%':'—'}</td>
+      <td class="num" style="${l.delta!==null?`color:${corDelta(l.delta)};font-weight:700`:''}">${l.delta!==null?sinal(l.delta)+' p.p.':'—'}</td>
+      <td>${t?`<span class="pill ${t.c}">${t.r}</span>`:'<span class="tag">só um simulado</span>'}</td>
+      <td>${l.maiorVar?`${esc(l.maiorVar.nome)} <span style="color:${corDelta(l.maiorVar.delta)};font-weight:700">${sinal(l.maiorVar.delta)}pp</span>`:'—'}</td></tr>`;
+  }).join('');
+  tb.querySelectorAll('[data-id]').forEach(tr => {
+    const go = () => abrirPerfil(+tr.dataset.id);
+    tr.onclick = go; tr.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function abrirPerfil(id){
+  const a1 = map1.get(id), a2 = map2.get(id);
+  const nome = (a1||a2).n, turma = turmaAtual(id);
+  document.getElementById('mNome').textContent = nome;
+  document.getElementById('mSub').textContent = `${turma} · matrícula ${id}${!a1?' · sem registro no 1º Simulado':!a2?' · sem registro no 2º Simulado':''}`;
+
+  const kpisHtml = [];
+  if (a1 && a2){
+    const p1 = pct(cont(a1.c),DATA1.totalQuestoes), p2 = pct(cont(a2.c),DATA2.totalQuestoes);
+    const delta = p2-p1, t = tendencia(delta);
+    kpisHtml.push(['','1º Simulado', `${cont(a1.c)}/${DATA1.totalQuestoes}`, f1(p1)+'%',0]);
+    kpisHtml.push(['','2º Simulado', `${cont(a2.c)}/${DATA2.totalQuestoes}`, f1(p2)+'%',0]);
+    kpisHtml.push([t.c==='evo-sobe'?'ok':t.c==='evo-cai'?'at':'neutro','Variação', sinal(delta)+' p.p.', t.r, 0]);
+  } else {
+    const a = a1||a2, data = a1?DATA1:DATA2;
+    kpisHtml.push(['neutro', a1?'1º Simulado':'2º Simulado', `${cont(a.c)}/${data.totalQuestoes}`, f1(pct(cont(a.c),data.totalQuestoes))+'%',0]);
+    kpisHtml.push(['at','Comparação', '—', 'sem registro no outro simulado',0]);
+  }
+  document.getElementById('mKpis').innerHTML = kpisHtml.map(([c,r,v,s]) => `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val">${v}</div><div class="sub">${s}</div></div>`).join('');
+
+  const linhas = DISC.map(d => {
+    const p1 = a1 ? pct(cont(a1.c,d.r1.ini,d.r1.fim), d.r1.fim-d.r1.ini+1) : null;
+    const p2 = a2 ? pct(cont(a2.c,d.r2.ini,d.r2.fim), d.r2.fim-d.r2.ini+1) : null;
+    return { nome:d.nome, p1, p2, delta:(p1!==null&&p2!==null)?p2-p1:null };
+  });
+  document.querySelector('#mTab tbody').innerHTML = linhas.map(l => `<tr><td class="nome">${esc(l.nome)}</td>
+    <td class="num">${l.p1!==null?f1(l.p1)+'%':'—'}</td><td class="num">${l.p2!==null?f1(l.p2)+'%':'—'}</td>
+    <td class="num" style="${l.delta!==null?`color:${corDelta(l.delta)};font-weight:700`:''}">${l.delta!==null?sinal(l.delta)+' p.p.':'—'}</td></tr>`).join('');
+
+  const datasets = [];
+  if (a1) datasets.push({ label:'1º Simulado', data:linhas.map(l=>l.p1), backgroundColor:getComputedStyle(document.body).getPropertyValue('--s1'), borderRadius:2 });
+  if (a2) datasets.push({ label:'2º Simulado', data:linhas.map(l=>l.p2), backgroundColor:getComputedStyle(document.body).getPropertyValue('--s2'), borderRadius:2 });
+  pintar('cAlunoDisc', { type:'bar', data:{ labels:linhas.map(l=>curto(l.nome)), datasets },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, labels:{ color:'#5d646c', boxWidth:12, font:{size:11} } } },
+    scales:{ x:{ grid:{display:false}, ticks:{color:'#5d646c',font:{size:10}} }, y:{ beginAtZero:true, max:100, grid:{color:'#d7dade'}, ticks:{color:'#5d646c',callback:v=>v+'%'} } } } });
+
+  document.getElementById('modal').classList.add('on'); document.body.style.overflow='hidden';
+  document.getElementById('mFechar').focus();
+}
+function fecharModal(){ document.getElementById('modal').classList.remove('on'); document.body.style.overflow=''; }
+
+/* ---------- leitura pedagógica ---------- */
+function renderInsights(){
+  const el = document.getElementById('insights');
+  const cf = comunsFiltrados();
+  if (cf.length < 2){ el.innerHTML = '<div class="ins info"><h3>Dados insuficientes</h3><p>Selecione um recorte com ao menos dois alunos comuns aos dois simulados.</p></div>'; return; }
+  const discs = statsDisciplinas();
+  const melhor = discs.reduce((a,b)=>a.delta>=b.delta?a:b), pior = discs.reduce((a,b)=>a.delta<=b.delta?a:b);
+  const deltas = cf.map(id => pcAluno(map2.get(id),DATA2)-pcAluno(map1.get(id),DATA1));
+  const subiu = deltas.filter(d=>d>LIMIAR).length, caiu = deltas.filter(d=>d<-LIMIAR).length;
+  const mDelta = deltas.reduce((s,v)=>s+v,0)/deltas.length;
+  const cards = [];
+  cards.push({ c: mDelta>=0?'bom':'', t:'Tendência geral', p:`Entre os ${cf.length} alunos comparáveis no recorte, a taxa média de acerto ${mDelta>=0?'subiu':'caiu'} ${f1(Math.abs(mDelta))} pontos percentuais do 1º para o 2º Simulado.` });
+  cards.push({ c:'bom', t:'Disciplina que mais evoluiu', p:`${melhor.nome} avançou ${sinal(melhor.delta)} p.p. (${f1(melhor.p1)}% → ${f1(melhor.p2)}%) entre os alunos comuns.` });
+  cards.push({ c: pior.delta<0?'':'info', t:'Disciplina com maior queda ou menor avanço', p:`${pior.nome} registrou variação de ${sinal(pior.delta)} p.p. (${f1(pior.p1)}% → ${f1(pior.p2)}%).` });
+  cards.push({ c:'info', t:'Distribuição de evolução', p:`${subiu} aluno(s) evoluíram e ${caiu} apresentaram queda além da margem de ±${LIMIAR} p.p.; os demais se mantiveram estáveis.` });
+  if (so1.length || so2.length) cards.push({ c:'at', t:'Cobertura da comparação', p:`${so1.length} aluno(s) só têm registro no 1º Simulado e ${so2.length} só no 2º — provavelmente entradas, saídas ou ausências entre as duas provas. Esses casos não entram nas métricas de evolução por não haver os dois pontos de referência.` });
+  el.innerHTML = cards.map(c => `<div class="ins ${c.c}"><h3>${c.t}</h3><p>${c.p}</p></div>`).join('');
+}
+
+function render(){
+  renderKpis(); renderDisciplinas(); renderTurmas(); renderMatriz(); renderDistEvo(); renderIndividual(); renderInsights();
+}
+
+montarTopo(); montarAviso(); montarFiltros(); render();
+document.getElementById('mFechar').onclick = fecharModal;
+document.getElementById('modal').onclick = e => { if (e.target.id==='modal') fecharModal(); };
+document.addEventListener('keydown', e => { if (e.key==='Escape') fecharModal(); });
+</script>
+</body>
+</html>

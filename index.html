@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>PiPA — Painel Pedagógico — 2º Simulado 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --preto:#101010; --preto-2:#1c1c1c; --vermelho:#d81f26; --vermelho-2:#a3161c;
+  --branco:#ffffff; --cinza-fundo:#eef0f2; --cinza-linha:#d7dade; --cinza-suave:#f5f6f8;
+  --texto:#1b1d20; --texto-2:#5d646c; --verde:#1e8e4d; --ambar:#c88a00; --roxo:#5b4a8a;
+  --sombra:0 1px 2px rgba(16,16,16,.10); --raio:4px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cinza-fundo)}
+body{color:var(--texto);font-family:'Barlow',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Barlow Condensed','Barlow',system-ui,Arial,sans-serif;letter-spacing:.2px}
+.wrap{max-width:1420px;margin:0 auto;padding:0 16px 56px}
+
+.topo{background:var(--preto);color:#fff;border-bottom:4px solid var(--vermelho)}
+.topo-in{max-width:1420px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.marca{display:flex;align-items:center;gap:12px;min-width:0}
+.selo{width:46px;height:46px;flex:0 0 46px;background:var(--vermelho);color:#fff;display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;border-radius:var(--raio)}
+.marca h1{margin:0;font-size:24px;font-weight:700;line-height:1.1}
+.marca p{margin:2px 0 0;font-size:13px;color:#c9cdd2;font-weight:500}
+.topo-meta{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--preto-2);border:1px solid #33383d;border-radius:var(--raio);padding:6px 10px;font-size:12px;color:#c9cdd2}
+.chip b{color:#fff;font-size:14px;font-family:'Barlow Condensed',sans-serif}
+
+.filtros{background:var(--branco);border:1px solid var(--cinza-linha);border-radius:var(--raio);box-shadow:var(--sombra);padding:12px;margin:16px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.campo{display:flex;flex-direction:column;gap:4px;min-width:165px;flex:1 1 165px}
+.campo label{font-size:11px;font-weight:600;color:var(--texto-2)}
+select,input[type=search]{font-family:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--cinza-linha);border-radius:var(--raio);background:var(--cinza-suave);color:var(--texto);width:100%}
+select:focus,input:focus,button:focus-visible,tr[tabindex]:focus-visible,[role=button]:focus-visible{outline:2px solid var(--vermelho);outline-offset:1px}
+.btn{font-family:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--raio);border:1px solid var(--cinza-linha);background:transparent;color:var(--texto);cursor:pointer}
+.btn:hover{background:var(--vermelho);color:#fff;border-color:var(--vermelho)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:8px;margin-bottom:18px}
+.kpi{background:var(--branco);border:1px solid var(--cinza-linha);border-left:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 10px;box-shadow:var(--sombra);min-width:0}
+.kpi .rot{font-size:11px;font-weight:600;color:var(--texto-2);margin-bottom:2px}
+.kpi .val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;overflow-wrap:anywhere}
+.kpi .val.txt{font-size:17px;line-height:1.15;font-weight:600}
+.kpi .sub{font-size:11px;color:var(--texto-2);margin-top:3px}
+.kpi.ok{border-left-color:var(--verde)} .kpi.at{border-left-color:var(--ambar)} .kpi.neutro{border-left-color:var(--preto)}
+
+.grade{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.painel{background:var(--branco);border:1px solid var(--cinza-linha);border-radius:var(--raio);box-shadow:var(--sombra);overflow:hidden;min-width:0;margin-bottom:14px}
+.painel>header{background:var(--preto);color:#fff;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.painel>header h2{margin:0;font-size:16px;font-weight:600}
+.painel>header .nota{font-size:11px;color:#b9bec4;text-align:right}
+.painel .corpo{padding:12px}
+.graf{position:relative;height:290px}
+.graf.alto{height:420px}
+
+.rolar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--cinza-linha);white-space:nowrap}
+thead th{background:var(--cinza-suave);font-size:11px;font-weight:700;color:var(--texto-2);position:sticky;top:0;z-index:2}
+tbody tr:hover{background:var(--cinza-suave)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.ctr,th.ctr{text-align:center}
+.pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--texto-2)}
+.pos.top{color:var(--vermelho)}
+.nome{white-space:normal;min-width:190px;font-weight:500}
+.tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600;background:var(--cinza-suave);border:1px solid var(--cinza-linha);color:var(--texto-2)}
+.pill{display:inline-block;min-width:52px;text-align:center;padding:2px 8px;border-radius:var(--raio);font-weight:700;font-size:12px;color:#fff}
+.p-alto{background:var(--verde)} .p-medio{background:var(--ambar)} .p-baixo{background:var(--vermelho)}
+.barra{position:relative;height:16px;background:var(--cinza-suave);border-radius:2px;min-width:90px;overflow:hidden}
+.barra span{position:absolute;inset:0 auto 0 0}
+.alto-tab{max-height:470px;overflow:auto}
+.clic{cursor:pointer}
+
+.calor{border-collapse:separate;border-spacing:2px;font-size:11px}
+.calor th{background:transparent;position:static}
+.calor thead th{font-size:10px;text-align:center;padding:2px 3px;white-space:normal;max-width:52px;line-height:1.15}
+.calor th.lat{text-align:left;white-space:nowrap;font-weight:500;font-size:12px;color:var(--texto);padding-right:8px;background:var(--branco);position:sticky;left:0;z-index:1}
+.calor td{border:0;padding:0;text-align:center}
+.cel{display:block;width:100%;min-width:50px;padding:5px 2px;color:#fff;font-weight:700;border-radius:2px;font-variant-numeric:tabular-nums}
+.legenda{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:var(--texto-2);margin-top:10px}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:4px;vertical-align:-2px}
+
+.quad-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--cinza-linha);border:1px solid var(--cinza-linha);border-radius:var(--raio);overflow:hidden}
+.quad{background:var(--branco);padding:10px 12px;display:flex;flex-direction:column;min-height:170px}
+.quad h3{margin:0 0 2px;font-size:14px;font-weight:600}
+.quad .desc{font-size:11px;color:var(--texto-2);margin-bottom:7px}
+.quad .nomes{display:flex;flex-wrap:wrap;gap:4px;overflow-y:auto;max-height:150px}
+.qtag{font-size:11px;padding:2px 7px;border-radius:12px;cursor:pointer;border:1px solid;background:var(--cinza-suave);white-space:nowrap}
+.qtag:hover{background:var(--preto);color:#fff;border-color:var(--preto)}
+
+.gabarita{display:flex;flex-direction:column;gap:6px;max-height:330px;overflow-y:auto}
+.gab-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:start;padding:7px 10px;border-left:3px solid var(--verde);background:var(--cinza-suave);border-radius:2px}
+.gab-row .d{font-size:11px;font-weight:700;color:var(--verde)}
+.gab-row .n{font-size:12px;line-height:1.5}
+.gab-row .n span{cursor:pointer;border-bottom:1px dotted var(--cinza-linha)}
+.gab-row .n span:hover{color:var(--vermelho)}
+
+.faixas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.fx{border:1px solid var(--cinza-linha);border-top:4px solid;border-radius:var(--raio);padding:12px 14px}
+.fx .q{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;line-height:1;margin:2px 0}
+.fx .r{font-size:15px;font-weight:700} .fx .s{font-size:13px;color:var(--texto-2)}
+
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.ins{border:1px solid var(--cinza-linha);border-top:3px solid var(--vermelho);border-radius:var(--raio);padding:10px 12px;background:var(--cinza-suave)}
+.ins h3{margin:0 0 4px;font-size:15px;font-weight:600}
+.ins p{margin:0;font-size:13px;color:var(--texto-2)}
+.ins.bom{border-top-color:var(--verde)} .ins.info{border-top-color:var(--preto)} .ins.at{border-top-color:var(--ambar)}
+
+.modal{position:fixed;inset:0;background:rgba(10,10,10,.6);display:none;z-index:50;padding:16px;overflow:auto}
+.modal.on{display:block}
+.modal-cx{background:var(--branco);max-width:980px;margin:24px auto;border-radius:var(--raio);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+.modal-cx>header{background:var(--preto);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-cx h2{margin:0;font-size:20px}
+.modal-cx header p{margin:2px 0 0;font-size:12px;color:#b9bec4}
+.fechar{background:transparent;border:1px solid #444;color:#fff;font-size:18px;line-height:1;width:30px;height:30px;border-radius:var(--raio);cursor:pointer;flex:0 0 30px}
+.fechar:hover{background:var(--vermelho);border-color:var(--vermelho)}
+.grade-q{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:4px}
+.q{border-radius:2px;padding:4px 2px;text-align:center;font-size:11px;color:#fff;font-weight:600;line-height:1.25;cursor:pointer}
+.q small{display:block;font-weight:400;font-size:10px;opacity:.85}
+.q.c{background:var(--verde)} .q.e{background:var(--vermelho)} .q.v{background:#8a9099} .q.d{background:var(--roxo)}
+.sec-t{font-size:12px;font-weight:700;color:var(--texto-2);margin:14px 0 6px}
+.alt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.alt{border:1px solid var(--cinza-linha);border-radius:var(--raio);padding:8px;text-align:center}
+.alt.ok{border-color:var(--verde);background:#eef7f1}
+.alt .l{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700}
+.alt .n{font-size:12px;color:var(--texto-2)}
+.rodape{text-align:center;font-size:12px;color:var(--texto-2);padding-top:18px}
+.vazio{padding:28px 12px;text-align:center;color:var(--texto-2)}
+.nav-comp{display:inline-block;background:var(--vermelho);color:#fff;font-size:13px;font-weight:600;text-decoration:none;padding:8px 14px;border-radius:var(--raio);border:1px solid var(--vermelho);white-space:nowrap}
+.nav-comp:hover{background:var(--vermelho-2);border-color:var(--vermelho-2)}
+@media (max-width:640px){.marca h1{font-size:20px}.graf{height:260px}.graf.alto{height:520px}.kpi .val{font-size:26px}.quad-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <div class="topo-in">
+    <div class="marca">
+      <div class="selo">PiPA</div>
+      <div><h1>Painel Pedagógico</h1><p>2º Simulado 2026 — Instituto PiPA</p></div>
+    </div>
+    <div class="topo-meta" id="topoMeta"></div>
+    <a class="nav-comp" href="comparativo.html">Comparativo 1º × 2º Simulado</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="filtros">
+    <div class="campo"><label for="fTurma">Turma</label><select id="fTurma"><option value="">Todas as turmas</option></select></div>
+    <div class="campo"><label for="fDisc">Disciplina</label><select id="fDisc"><option value="">Todas as disciplinas</option></select></div>
+    <div class="campo"><label for="fFaixa">Faixa de desempenho</label><select id="fFaixa"><option value="">Todas as faixas</option></select></div>
+    <div class="campo" style="flex:2 1 220px"><label for="fNome">Buscar aluno</label><input type="search" id="fNome" placeholder="Digite parte do nome" autocomplete="off"></div>
+    <button class="btn" id="btnLimpar" type="button">Limpar filtros</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="painel">
+    <header><h2>Faixas de desempenho</h2><span class="nota">clique para filtrar o painel</span></header>
+    <div class="corpo"><div class="faixas" id="faixas"></div></div>
+  </section>
+
+  <div class="grade g2">
+    <section class="painel">
+      <header><h2>Distribuição de notas</h2><span class="nota" id="notaDist"></span></header>
+      <div class="corpo"><div class="graf"><canvas id="cDist"></canvas></div></div>
+    </section>
+    <section class="painel">
+      <header><h2>Comparativo entre turmas</h2><span class="nota">percentual médio de acertos</span></header>
+      <div class="corpo"><div class="graf"><canvas id="cTurmas"></canvas></div></div>
+    </section>
+  </div>
+
+  <section class="painel">
+    <header><h2>Desempenho por disciplina</h2><span class="nota" id="notaDisc"></span></header>
+    <div class="corpo">
+      <div class="graf"><canvas id="cDisc"></canvas></div>
+      <div class="rolar" style="margin-top:12px">
+        <table id="tabDisc"><thead><tr><th>Disciplina</th><th class="num">Questões</th><th class="num">Acertos</th><th class="num">Possíveis</th><th class="num">% acerto</th><th class="num">Gabaritaram</th><th>Aproveitamento</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Matriz turma × disciplina</h2><span class="nota">percentual de acertos por cruzamento</span></header>
+    <div class="corpo"><div class="rolar"><table class="calor" id="matriz"><thead></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Desempenho por questão</h2><span class="nota" id="notaQ"></span></header>
+    <div class="corpo">
+      <div class="graf alto"><canvas id="cQuest"></canvas></div>
+      <div class="rolar alto-tab" style="margin-top:12px">
+        <table id="tabQ"><thead><tr><th class="num">Questão</th><th>Disciplina</th><th class="ctr">Gabarito</th><th class="num">Acertos</th><th class="num">% acerto</th><th class="ctr">Distrator dominante</th><th class="num">Brancos</th><th class="num">Duplas</th></tr></thead><tbody></tbody></table>
+      </div>
+      <p style="font-size:12px;color:var(--texto-2);margin:10px 0 0">Clique em uma questão para ver a distribuição de alternativas e o desempenho por turma.</p>
+    </div>
+  </section>
+
+  <div class="grade g2">
+    <section class="painel">
+      <header><h2>Quadrantes de desempenho</h2><span class="nota">nota × regularidade entre disciplinas</span></header>
+      <div class="corpo"><div class="quad-grid" id="quadrantes"></div></div>
+    </section>
+    <section class="painel">
+      <header><h2>Gabaritaram a disciplina</h2><span class="nota">100% de acerto no bloco</span></header>
+      <div class="corpo"><div class="gabarita" id="gabarita"></div></div>
+    </section>
+  </div>
+
+  <section class="painel">
+    <header><h2>Mapa de calor — aluno por disciplina</h2><span class="nota">percentual de acertos</span></header>
+    <div class="corpo">
+      <div class="rolar alto-tab"><table class="calor" id="calor"><thead></thead><tbody></tbody></table></div>
+      <div class="legenda">
+        <span>% de acertos:</span>
+        <span><i style="background:#8e1015"></i>0–19</span><span><i style="background:#d81f26"></i>20–39</span>
+        <span><i style="background:#e8842a"></i>40–49</span><span><i style="background:#c8a415"></i>50–59</span>
+        <span><i style="background:#4a9a4f"></i>60–79</span><span><i style="background:#16713a"></i>80–100</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Ranking individual</h2><span class="nota" id="notaRank"></span></header>
+    <div class="corpo">
+      <div class="rolar alto-tab"><table id="tabRank"><thead><tr id="rankHead"></tr></thead><tbody></tbody></table></div>
+      <p style="font-size:12px;color:var(--texto-2);margin:10px 0 0">Clique em uma linha para abrir o perfil completo do aluno.</p>
+    </div>
+  </section>
+
+  <section class="painel">
+    <header><h2>Inteligência pedagógica</h2><span class="nota">leitura automática dos dados filtrados</span></header>
+    <div class="corpo"><div class="insights" id="insights"></div></div>
+  </section>
+
+  <p class="rodape">Instituto PiPA — Painel Pedagógico do 2º Simulado 2026. Dados apurados a partir da folha de respostas oficial.</p>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mNome">
+  <div class="modal-cx">
+    <header><div><h2 id="mNome"></h2><p id="mSub"></p></div><button class="fechar" id="mFechar" aria-label="Fechar perfil">&times;</button></header>
+    <div class="corpo" style="padding:14px">
+      <div class="kpis" id="mKpis" style="margin-bottom:14px"></div>
+      <div class="grade g2">
+        <div><div class="sec-t">Perfil por disciplina — aluno x média da turma</div><div class="graf"><canvas id="cAluno"></canvas></div></div>
+        <div><div class="sec-t">Comparação numérica</div><div class="rolar"><table id="mTab"><thead><tr><th>Disciplina</th><th class="num">Acertos</th><th class="num">%</th><th class="num">Turma</th><th class="num">Geral</th><th class="num">Dif.</th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+      <div class="sec-t">Questão a questão — clique para ver a questão em detalhe</div>
+      <div class="grade-q" id="mQ"></div>
+      <div class="legenda">
+        <span><i style="background:var(--verde)"></i>Acerto</span><span><i style="background:var(--vermelho)"></i>Erro</span>
+        <span><i style="background:#8a9099"></i>Em branco</span><span><i style="background:var(--roxo)"></i>Dupla marcação</span>
+        <span>No rodapé de cada questão: alternativa marcada / gabarito.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalQ" role="dialog" aria-modal="true" aria-labelledby="qNome">
+  <div class="modal-cx" style="max-width:720px">
+    <header><div><h2 id="qNome"></h2><p id="qSub"></p></div><button class="fechar" id="qFechar" aria-label="Fechar questão">&times;</button></header>
+    <div class="corpo" style="padding:14px">
+      <div class="kpis" id="qKpis" style="margin-bottom:14px"></div>
+      <div class="sec-t">Distribuição das alternativas marcadas</div>
+      <div class="alt-grid" id="qAlt"></div>
+      <div class="sec-t">Acerto por turma</div>
+      <div class="rolar"><table id="qTurmas"><thead><tr><th>Turma</th><th class="num">Acertos</th><th class="num">Alunos</th><th class="num">% acerto</th><th>Comparativo</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   PiPA — Painel Pedagógico — 2º Simulado 2026
+   Bloco de dados: substituir a constante DATA para publicar um novo simulado.
+   Estrutura: {titulo, totalQuestoes, gabarito, disciplinas[{nome,ini,fim}], alunos[{id,n,t,a,c}]}
+   a = 50 posições: letra marcada, "-" = em branco, "*" = dupla marcação (anulada)
+   c = 50 dígitos oficiais da correção (1 acerto, 0 erro)
+   ========================================================================== */
+const DATA = {"titulo":"2º Simulado 2026","totalQuestoes":50,"gabarito":"ABACCCDBAEDEAEDDECDEACBECBBCADECADCABCBAAABECCEDBA","disciplinas":[{"nome":"ATUALIDADES","ini":1,"fim":5},{"nome":"BIOLOGIA","ini":6,"fim":10},{"nome":"INTERPRETAÇÃO DE TEXTO","ini":11,"fim":21},{"nome":"HISTÓRIA","ini":22,"fim":26},{"nome":"GEOGRAFIA","ini":27,"fim":31},{"nome":"MATEMÁTICA","ini":32,"fim":38},{"nome":"GRAMÁTICA","ini":39,"fim":40},{"nome":"QUÍMICA","ini":41,"fim":45},{"nome":"FÍSICA","ini":46,"fim":50}],"alunos":[{"id":1261,"n":"Lucas Borges de Jesus","t":"Turma 3","a":"ABACCCDBAEDEAEDDECCEACBECBBCADECBDCABCBAAABECCEADA","c":"11111111111111111101111111111111011111111111111001"},{"id":1320,"n":"Ester Marcondes de Lima Costa","t":"Turma 4","a":"ABACCCDBBEEEAEDDECDEACBECBBCADECADCABCBAAABECCDAAB","c":"11111111010111111111111111111111111111111111110000"},{"id":1290,"n":"Maria Ysabell Sodré de Andrade","t":"Turma 3","a":"ABACCEDBBEDDAEDDECDEECBECBBCADECADCABCBAABBECCDABA","c":"11111011011011111111011111111111111111111011110011"},{"id":1384,"n":"Fhilipe de Souza dos Santos","t":"Turma 1","a":"ABACCBDACEDEAEDAECDEACBECBECADECADCABCBAABBBCCACCA","c":"11111010011111101111111111011111111111111010110001"},{"id":1278,"n":"Emerson Santana Duraque","t":"Turma 2","a":"ABA*CCDEBEDEAEDDECDEACBECBBCADECBDCADDBDCABACCABBA","c":"11101110011111111111111111111111011100100110110011"},{"id":1295,"n":"Gabriel Nobrega de Sá","t":"Turma 3","a":"ABACCBDBDEDEAEDDECCEECBECBBCADECADCCBDBAACBDCABACA","c":"11111011011111111101011111111111111010111010100001"},{"id":1389,"n":"Olivia Hirai Guimarães","t":"Turma 1","a":"ABACCCDDCEDEAEDDECDEACBECBBCADECDDCBACCDACAECCDEDE","c":"11111110011111111111111111111111011001001001110000"},{"id":1301,"n":"Carlos Eduardo Souza Ribeiro","t":"Turma 3","a":"AEACCCDBCEDEAEDDECDEABBECBBCABEADBCAACBDAADDCCAABE","c":"10111111011111111111101111111010001101101100110010"},{"id":1280,"n":"Laura Martins Alencar","t":"Turma 3","a":"ABACCCDDEEDEAEDDECDDACBECBBDADEDACCDDCCAABBCCCAADA","c":"11111110011111111110111111101110101001011010110001"},{"id":1240,"n":"Lívia Sant'Anna Ferreira","t":"Turma 2","a":"ABACCCDACEDEAEDDAACEACBECBBCAAECADCABCBCCDDBDCBDEA","c":"11111110011111110001111111111011111111100000010101"},{"id":1252,"n":"Maria Luiza Torres Monteiro","t":"Turma 2","a":"AEACCCDDAEDEAEDDECCEABBECBCBAEECBCCDBABAAEBEDCCDBA","c":"10111110111111111101101111001011001010111011010111"},{"id":1285,"n":"Matheus Alves Campos","t":"Turma 4","a":"AACECCADAEDEAEDDECBEACBECBBCABBAADCACCCAAADECCAABA","c":"10001100111111111101111111111000111101011101110011"},{"id":1226,"n":"Pedro Henrique Rocha Batista","t":"Turma 1","a":"ABACCBDDAEDEAEDDECCDACBECBBCADECADCCAABDDDBBDCADEA","c":"11111010111111111100111111111111111000100010010101"},{"id":1294,"n":"Allana Eduarda Coutinho dos Santos","t":"Turma 3","a":"ADACCBDBEEDEAEDEECCEACBECBBCADECDCEBBBBDADDECBEBBA","c":"10111011011111101101111111111111000010101001101011"},{"id":1299,"n":"Carlos Eduardo Silva e Silva","t":"Turma 4","a":"ABACCADCCEDEAEDDECDEDBBECCBCADECADCBADBBDACECCEECD","c":"11111010011111111111001110111111111000100101111000"},{"id":1274,"n":"Kizy Thauane Nunes da Silva","t":"Turma 2","a":"ABACCCDAAEDEAEEDECCEABBECBBCAEECBDCCDDBADDBECEAABC","c":"11111110111111011101101111111011011000110011100010"},{"id":1333,"n":"Manuella Silvério dos Santos","t":"Turma 3","a":"ABACCADEEECCAEDDEDCEDBBECBBCADBAADCABCBAAABECAAAAA","c":"11111010010011111001001111111100111111111111100001"},{"id":1307,"n":"Riquelme Andre da Silva França","t":"Turma 3","a":"ABACCCDDDEDCAEDDACADBCBECBBCCDBCADCCBCBAAAEECABABB","c":"11111110011011110100011111110101111011111101100010"},{"id":1336,"n":"Geovanna Borges Albarrassim","t":"Turma 4","a":"BEACCCDAAEDEAEDDAECEAEBECBDCADEAACBAACBDAABECEDABA","c":"00111110111111110001101111011110100101101111100011"},{"id":1267,"n":"Julia da Silva Barros","t":"Turma 2","a":"ABACCBDABBDEAEDDECDEAABECBECADECDCCBBABDACBECADDAB","c":"11111010001111111111101111011111001010101011100100"},{"id":1249,"n":"Mirella Borges de Cezar","t":"Turma 4","a":"AEACCADDDEDCAEDDECCEDBBECBBCADECADCDACBAEBBE*CAACA","c":"10111010011011111101001111111111111001110011010001"},{"id":1275,"n":"Yasmin Kauany Nunes dos Santos","t":"Turma 2","a":"AEACCBDBCEDEAEDEECCDACBECBBCABECBDCABDBADBBCCAEBAC","c":"10111011011111101100111111111011011110110010101000"},{"id":1277,"n":"Alan Santos Souza","t":"Turma 3","a":"ABACCBDDDBDDAEDDECCEDBBECBBCADDBDCCDCDBAAABECDEDBB","c":"11111010001011111101001111111100001000111111101110"},{"id":1322,"n":"Júlio César de Sousa Silva","t":"Turma 3","a":"AEACCADBCEDEAEEDACDEDACECBBCACECCDCBBDDAAABEDDEABE","c":"10111011011111010111000111111011011010011111001010"},{"id":1256,"n":"Rogerio Pinheiro Zadravec","t":"Turma 2","a":"AEAECBADDEDDAEDDACDEEBCECBBCABECBDCABABAAABECCABCA","c":"10101000011011110111000111111011011110111111110001"},{"id":1229,"n":"Kennedy de Souza Lopes","t":"Turma 1","a":"ABACCBAAEEDEAEDDECCEACBECBBCAEEDADBBABBACCCECCDAEB","c":"11111000011111111101111111111010110000110001110000"},{"id":1258,"n":"Lizzie Cristina do Nascimento Silva","t":"Turma 2","a":"ABACCCDAAEDAAEEDECDECCBECBBCADBBEEBCEBCDAACECDAEBA","c":"11111110111011011111011111111100000000001101100011"},{"id":1212,"n":"Ana Giullia Rodrigues Roza","t":"Turma 1","a":"DBACCBDDDEDEAEDDECDEACAECBBAABECDDBAABEAEACEAAACDA","c":"01111010011111111111110111101011010100010101000001"},{"id":1304,"n":"Enzo Vieira França","t":"Turma 3","a":"ABACBADEDEDCAEDDECCDACDECBBCADACADCAADBBABBBAADAAA","c":"11110010011011111100110111111101111100101010000001"},{"id":1332,"n":"Evellyn Magalhães Souza","t":"Turma 1","a":"ABACCBDADEDAAECDECCEACBECBBCAAECDCEDCBBAABBCCDEAEE","c":"11111010011011011101111111111011000000111010101000"},{"id":1232,"n":"Isabella da Silva Santos","t":"Turma 1","a":"CBACCADACEDEAEDDEDCEDBBECBBCADECAECDAABAEBBBCCAADE","c":"01111010011111111001001111111111101000110010110000"},{"id":1302,"n":"Luiz Carlos da Silva Sousa","t":"Turma 2","a":"ABACCBDCDEDEAEDDECCDEBBECBBCADEBBCDADDB*ABBBCBCABA","c":"11111010011111111100001111111110000100101010100011"},{"id":1378,"n":"Gabrieli Fernandes Cavalcante","t":"Turma 3","a":"AEACCABDBEEEAEDDECDEABBECBDDAAEDDACDBBBAAABECBCEAE","c":"10111000010111111111101111001010001010111111100000"},{"id":1288,"n":"Jamilly Vitoria Salles Silva","t":"Turma 3","a":"ABACCBAAADDEAEDEEDCEECBBCBBBADBCEDAAABBAABDECBABBA","c":"11111000101111101001011011101101010100111001100011"},{"id":1207,"n":"Kauanny Lima Matos","t":"Turma 1","a":"ABACCBDAEEDEAEDCECCEACBECBBCADEAEDBCEDBDBBAECBAEDE","c":"11111010011111101101111111111110010000100001100000"},{"id":1334,"n":"Kevillyn Beatriz Souza de Lima Oliveira","t":"Turma 4","a":"ABACCBDBCEDEAEDDECDEDABECBBCADEBDCADEBEDDDBECEAEAC","c":"11111011011111111111001111111110000000000011100000"},{"id":1219,"n":"Larissa Arevalo da Silva","t":"Turma 1","a":"AEACCBBDBEDBAEDDECDEACBECBBCDDDACBBCBDBDAABDCCBAAE","c":"10111000011011111111111111110100000010101110110000"},{"id":1379,"n":"Matheus Alves Vieira dos Santos","t":"Turma 2","a":"ADACCBDAEEDEAEEDEDDDABADCBDCADECDDCEACBADEBBCCEADB","c":"10111010011111011010100011011111011001110010111000"},{"id":1321,"n":"Mirella Vitória Gomes Aguilar","t":"Turma 4","a":"ABACCEDDEEDDAEDDACCEACBECCBCACECBCCBABBDACDBCCDADA","c":"11111010011011110101111110111011001000101000110001"},{"id":1231,"n":"Thiago Diniz Santos","t":"Turma 3","a":"ABACBEDDAEDEAEDDECDBAAEECBEDADECACACCCBDABCEADBABE","c":"11110010111111111110100111001111100001101001000010"},{"id":1234,"n":"Carolina Fernandes Passos","t":"Turma 2","a":"DBACCADADEDAAEDAACCEABBBCBBCADECC-ADABBAACBECDCBCA","c":"01111010011011100101101011111111000000111011100001"},{"id":1338,"n":"Gabriel Vasconcelos de Mello","t":"Turma 1","a":"ABACCBDAEECEAEACACDADCBECBBCADBCCDCACCCAAD*BCAAACB","c":"11111010010111000110011111111101011101011000100000"},{"id":1239,"n":"Aleffe Adriano Gomes da Silva","t":"Turma 2","a":"ABCCBCDAEECBBADDECDDDBBECBABAAECEDBACDBAACBECBBEBA","c":"11010110010000111110001111001011010100111011100011"},{"id":1248,"n":"Ana Julia dos Santos Silva","t":"Turma 2","a":"CBACCBCEDEDEAEEDEECDADBDCBBCACECADBCDBBDACBDACECDA","c":"01111000011111011000101011111011110000101010011001"},{"id":1210,"n":"Anna Júlia Marcelino dos Santos","t":"Turma 1","a":"ABACCBAABEDEAEDDEBCEACCECBBEAABABCCDBABADEBBCAABAA","c":"11111000011111111001110111101000001010110010100001"},{"id":1325,"n":"Guilherme Rodrigues Rocha","t":"Turma 4","a":"ACBECBDDDEDDAEADEBCEDDBECBBCAEECDCDAADBBAABECAAABA","c":"10001010011011011001001111111011000100101111100011"},{"id":1202,"n":"Israel Mendes da Silva Abreu","t":"Turma 1","a":"AECDDBABDDDCAECDEBDEACBECABCADBCDBCACBBABBBDCCEAEA","c":"10000001001011011011111110111101001100110010111001"},{"id":1262,"n":"Jonathan Gonçalves da Silva","t":"Turma 2","a":"AAECBBDAAEDAAEDDEDCEACBECBBCAEECDCCBDBBADDDBC*AAEA","c":"10010010111011111001111111111011001000110000100001"},{"id":1311,"n":"João Victor de Souza Santos","t":"Turma 4","a":"ADACCEDCDEDEBEDDEDDEABEDCABCCDAACDCBBDCAADBBCDACBA","c":"10111010011101111011100010110100011010011010100011"},{"id":1213,"n":"Júlio Nobre Ribeiro","t":"Turma 4","a":"ABACBBDADEDEAEDDECCDABBECDBCAEECEECEAABADACDCDAACC","c":"11110010011111111100101110111011001000110100100000"},{"id":1224,"n":"Maria Clara de Freitas Nepomuceno","t":"Turma 4","a":"ABECCAABDBDAAEDAACDDDBBECBBEADBCEDCCABBAAABECDCAAE","c":"11011001001011100110001111101101011000111111100000"},{"id":1246,"n":"Yasmim Camilly Lima Cavalcanti","t":"Turma 1","a":"ADACCBAACDDBAEDEAADEEBBECDBCBDECEDCCADBAAEBECCDCBC","c":"10111000001011100011001110110111011000111011110010"},{"id":1303,"n":"Anna Julia Nogueira da Silva","t":"Turma 3","a":"ABAECDADCECEAEDDADCEDABECBBCADEBACCEABBDDEDECC*AAA","c":"11101000010111110001001111111110101000100001110001"},{"id":1289,"n":"Kariely Claisa Butrón Gutierrez","t":"Turma 3","a":"ABACCBDCEBBBAAACEDCEADBECDBCAEECDDCABBBDCBBECDAABD","c":"11111010000010001001101110111011011110100011100010"},{"id":1337,"n":"Mayra Christine Mondego Martins","t":"Turma 4","a":"ABCCCBEAEECEAEDDCDCEABBECADCCDCDABBACCBACABCDEBDBA","c":"11011000010111110001101110010100100101110110000111"},{"id":1298,"n":"Vitor Marques Alves","t":"Turma 4","a":"ADACCBDDCECEAEDDECCEACBECBBCAEEDBCACEDBDCCBADDBADA","c":"10111010010111111101111111111010000000100010000001"},{"id":1340,"n":"Yasmin Cardoso Tigre","t":"Turma 3","a":"ABACCCDAEEDEAAEDECDEABBECBACADBECCCBABCDABCEEACECD","c":"11111110011110011111101111011100001000001001000000"},{"id":1215,"n":"Emilly Oliveira Santos","t":"Turma 1","a":"ABACCCDADEABAAEEECDDDCBACBDCADCDACDCADEABEBECCBDCC","c":"11111110010010001110011011011100100000010011110100"},{"id":1244,"n":"Kamilly Cristina Neves de Oliveira","t":"Turma 2","a":"ABDDCCDEEEDECECDECCEDADECABCAAEDEDDCABBCABBBACCDBD","c":"11001110011101011101000110111010010000101010010110"},{"id":1309,"n":"Melissa Helena Costa Machado","t":"Turma 3","a":"ABACDDDEEBDEBEDDECDEADBECBAAEDAABEDBADEAEABACCDBAA","c":"11110010001101111111101111000100000000010110110001"},{"id":1335,"n":"Yasmin Cocarelli de Assis","t":"Turma 4","a":"DAAECBAAEEDCAEDAEADEDDEECABCAAEACDCCADBDAABACAEBBA","c":"00101000011011101011000110111010011000101110101011"},{"id":1323,"n":"Bruna Milena Laureano Silva","t":"Turma 1","a":"ABECCBBAEBDAAEDCECCEABEACBBCAACDDBAEACBDAABECBAAAA","c":"11011000001011101101100011111000000001101111100001"},{"id":1331,"n":"Esther Ferreira dos Santos","t":"Turma 4","a":"ABACCBDBBDDEAEEEEEBEEDDECBBDABDCEEEDADBAEADECABCCA","c":"11111011001111001001000111101001000000110101100001"},{"id":1339,"n":"Helena Teixeira Gomes","t":"Turma 2","a":"CAACBCBDDECEAEDDACCDACBECABCABEBCDEBCDBCDBBEBEEDCB","c":"00110100010111110100111110111010010000100011001100"},{"id":1251,"n":"Kaique Barbosa Ferreira da Silva","t":"Turma 2","a":"ADACCCDABEDDAEDAECEDDBBECBECADCCDDBEAACADEDEBDBBCA","c":"10111110011011101100001111011101010000010001000001"},{"id":1227,"n":"Ketelyn de Paiva Teixeira","t":"Turma 1","a":"ABACCBDDDBDBAEEEECBEABBBCBBEAEECACCBADEDEACBAAADCA","c":"11111010001011001101101011101011101000000100000101"},{"id":1317,"n":"Luz Noelia Mamani Lapaca","t":"Turma 4","a":"DBCCCADDBADEAEAEECBDDAEECCBDADEAEDEDABBBAAAECCD*BA","c":"01011010001111001100000110101110010000101101110011"},{"id":1316,"n":"Maria Clara Dias Portes","t":"Turma 4","a":"CEADCBDDEDDEAEDEEEDEAABDCAECADEEAAECAEBACAAECDCECA","c":"00101010001111101011101010011110100000110101100001"},{"id":1329,"n":"Maria Eduarda Leite Correia dos Santos","t":"Turma 4","a":"CBEACADDEECEAEDDECCEACDECABAAEAABCDCBBCDAAAECBEDCB","c":"01001010010111111101110110101000000010001101101100"},{"id":1217,"n":"Murilo Pereira Dias","t":"Turma 1","a":"ADACCEDDCEDEAEDDACCBABBECBADDDEEBCBADDBCAEEECDABEC","c":"10111010011111110100101111000110000100101001100000"},{"id":1205,"n":"Paulo Novais dos Santos","t":"Turma 1","a":"DCACCBAAEEDEAEDDECDDDBBECBDACBBCEDCEABBDDDBDBDBDBA","c":"00111000011111111110001111000001011000100010000111"},{"id":1300,"n":"Rayza Lima de Carvalho","t":"Turma 3","a":"ABACBCCADBCBAEDDECCEADEDCBBBAEBBCDDECDBAEBCECDBDBA","c":"11110100000011111101100011101000010000110001100111"},{"id":1203,"n":"Ryan Lucas Dias do Nascimento Silva","t":"Turma 4","a":"CBACCADDCEDDAEDAAECCBBEECBBCADCEDCCCABCAEABECCBABC","c":"01111010011011100000000111111100001000010111110010"},{"id":1225,"n":"Yasmin Andrade dos Santos","t":"Turma 4","a":"AEACCADDBEDEAEACECDEAABECDEACDDCBCEBACBBDABBEEBEBC","c":"10111010011111001111101110000101000001100110000010"},{"id":1296,"n":"Barbara Cristina Lopes Martins","t":"Turma 3","a":"CBACCADDEBDEAEDDECDDABDECBDCAEBDACEEABBA*EADCBDCAD","c":"01111010001111111110100111011000100000110000100000"},{"id":1287,"n":"Isabella Aidê Ribeiro de Barros","t":"Turma 3","a":"DECCCEDECECDAEEDECCEADBECBBCAEEBEDBCBBEDAEEEAECCCA","c":"00011010010011011101101111111010010010001001000001"},{"id":1257,"n":"Kamilly de Oliveira Carvalho","t":"Turma 2","a":"DEACCADAEEDAAEEEACCEABBBCDBCEDACADDBABBDABBBEDBDCA","c":"00111010011011000101101010110101110000101010000101"},{"id":1220,"n":"Lavinia Souza Guimarães","t":"Turma 1","a":"ABACBDADEADDAEDAACEEAACBCBACADEBDBDBCDBAABBACBCABA","c":"11110000001011100101100011011110000000111010100011"},{"id":1268,"n":"Maria Eduarda Alves da Silva Putumuju","t":"Turma 2","a":"AEECCEADDEDEBEEDEDBEDBBECBBCADBBCDEAABBAEAAEADBBCC","c":"10011000011101011001001111111100010100110101000000"},{"id":1223,"n":"Ryan Miguel de Araújo Lopes","t":"Turma 1","a":"BEBCCCEDBDDEAEADEDCAACBACBACABEADCDBADBDACBBCDEDEA","c":"00011100001111011000111011011010000000101010101101"},{"id":1228,"n":"Alyce Lopes Silva","t":"Turma 1","a":"ABACCBBDCBDBAEDEECCDAACECBBCEBECBDBCCDBAADCBDEDCAC","c":"11111000001011101100100111110011010000111000000000"},{"id":1272,"n":"Emilli Pereira Rocha","t":"Turma 2","a":"BBCCEBEDAEDBAEACECCDACEBCBBEADEAEDBCADBADDBEEDEECE","c":"01010000111011001100110011101110010000110011001000"},{"id":1254,"n":"Heloisa Videira Machado","t":"Turma 3","a":"AEAACADAEEDEAEDCECDEDBBECBEBCBEBBEDEABCAEBCECDBCBE","c":"10101010011111101111001111000010000000010001100010"},{"id":1216,"n":"Mariana Correia de Souza","t":"Turma 1","a":"BEEDCEDCAADBAEADAC*EDCAECEBAEDECBEBAECBAACCDECBECA","c":"00001010101011010101010110100111000101111000010001"},{"id":1221,"n":"Thauany de Carvalho Neri","t":"Turma 1","a":"DBACCBDACECAAEAEEDCEABBECBBDACEADDBC-DABBDBEAAEDAC","c":"01111010010011001001101111101010010000000011001100"},{"id":1310,"n":"Yasmin Fernandes de Moura","t":"Turma 3","a":"AEAECCCAEEDDAEDECCCDADEECCBCAEAAEDDCEDDAACDECCEACB","c":"10101100011011100100100110111000010000011001111000"},{"id":1214,"n":"Arthur Albuquerque","t":"Turma 1","a":"DBACCBAADEDDAEDEADDEABBDCBBDCAEECDAEABBACECACCABCE","c":"01111000011011100011101011100010010000110000110000"},{"id":1235,"n":"Ellyson Gutierrez Condori","t":"Turma 2","a":"BBECBCCDCECEAEADACCDDBEECBBCBEBCEEBDABBBAACBCCBDCA","c":"01010100010111010100000111110001000000101100110101"},{"id":1330,"n":"Gustavo Henrique Anselmo do Nascimento","t":"Turma 4","a":"BEECCDEABBCBBEEDEDDEDBBECCCCAEBABDCCADBDABBECCAABA","c":"00011000000001011011001110011000011000101011110011"},{"id":1273,"n":"Maria Ester Cano Morales","t":"Turma 4","a":"ABCCCCDCBEDBBECEEDDEDEBEDBDCBEDCBEBBDBBADBCACAEABC","c":"11011110011001001011001101010001000000110000101010"},{"id":1324,"n":"Sarah Alves de Carvalho","t":"Turma 4","a":"DEACCBDCAEDAAEDDADCEAACDCECDAEEBEECBCBBDDABAECEADE","c":"00111010111011110001100010001010001000100110011000"},{"id":1209,"n":"Anna Beatriz dos Santos Pereira","t":"Turma 1","a":"CEBACBADEACBBEDDECCEBBBECCACAEECCEEBABBAAAEEABADDA","c":"00001000000001111101001110011011000000111101000101"},{"id":1264,"n":"Arthur Alves dos Santos","t":"Turma 4","a":"ABCCABCDEBCEAECDBDDEEABECDBCACDCACBBAACADDBACDBEBB","c":"11010000000111010011001110111001100000010010100010"},{"id":1319,"n":"Brenda Martins dos Santos","t":"Turma 3","a":"ABACCABACBDAAEDDECDEBBBBCAACBBCCCEDBABBBABCBBEDCBB","c":"11111000001011111111001010010001000000101000000010"},{"id":1265,"n":"Emilly Angeli da Silva","t":"Turma 2","a":"ABBCCBDDEEACBEECECDEDAEBCBDCEEECEDCDCDBACEEBBDBCBE","c":"11011010010001001111000011010011011000110000000010"},{"id":1328,"n":"Marcela Oliveira Levino Tenca","t":"Turma 4","a":"DCECCCDEECCDAEEEACCEACEBCBDCAABEBBBBABBAACBEABECCA","c":"00011110000011000101110011011000000000111011001001"},{"id":1260,"n":"Maria Luiza Cesar Sabino","t":"Turma 2","a":"AEACCBDAEEDEAEED*CBEDCCBCDBCDCEEEDCBDDCBEBDAEACEBD","c":"10111010011111010101010010110010011000000000000010"},{"id":1283,"n":"Jose Vaelison de Oliveira Pereira","t":"Turma 3","a":"DBACBCDDBBDBACACEBDADBCBCBACDECBACADBACADAAECBCDDA","c":"01110110001010001010000011010000100010010101100101"},{"id":1315,"n":"Monike Gabrielly da Silva Bezerra","t":"Turma 3","a":"DBECCEADBEDDAEDECCCEEACECBBBAEECDADDCDBBEBDEDDAABD","c":"01011000011011100101000111101011000000100001000010"},{"id":1377,"n":"Arthur Alexandre Moraes de Oliveira","t":"Turma 3","a":"DAADCCEDAEDABDDEECBEEBBAADBCADCBECAAAEAADDDCBDACBA","c":"00101100111000101101001000111100000100010000000011"},{"id":1263,"n":"Carolina Santos do Carmo","t":"Turma 2","a":"ABAECCDABBCECAABCBCDDABECCBDBDBCDADBBCBCEAABCEBBCA","c":"11101110000100000000001110100101000011100100100001"},{"id":1206,"n":"Henrique Costa Meira","t":"Turma 1","a":"CEAEBBDDEEDDAEDEECCDDBBACCACCCACADCBCBEDDDDEADDCBA","c":"00100010011011101100001010010001111000000001000011"},{"id":1284,"n":"Isis Larissa dos Santos Silva","t":"Turma 4","a":"BEEDCBBAAACDAEDDECDEAAABCABEACEDDECDADBBACECBAABBE","c":"00001000100011111111100010101010001000101000000010"},{"id":1292,"n":"Vitoria Moraes Malosti","t":"Turma 3","a":"BDADBCDAABBBBEAEEBEDDCBECCACCBBCABBBDDBACEBCACEAAA","c":"00100110100001001000011110010001100000110010011001"},{"id":1381,"n":"Alessandra Silva Lima","t":"Turma 1","a":"ABEDBABAEBCEAEACECBEACBBEDCCAAABDCDEADBDABBBECCCEA","c":"11000000000111001101111000011000000000101010010001"},{"id":1293,"n":"Ana Vitoria Fernandes dos Santos","t":"Turma 3","a":"BCACCBAAAEDEAAEDACDEDBCDCBCEBBBAEBEBADBAB*CECDAB*E","c":"00111000111110010111000011000000000000110001100000"},{"id":1270,"n":"Camila de Andrade Dutra Apolinario","t":"Turma 2","a":"EBACCBDDBDDCAEAEACAEABCECBBADAEEEDBCCACAECCCBBACAB","c":"01111010001011000101100111100010010000010000000000"},{"id":1341,"n":"Thamires Rodrigues de Oliveira","t":"Turma 3","a":"ADCDCBDEBECBBEACECCEEBEDCDBACBCAEDABAABAABBECADEBB","c":"10001010010001001101000010100000010000111011100010"},{"id":1204,"n":"Ana Beatrys de Lima Costa","t":"Turma 1","a":"CBCBCDEDEDDDACDDADCEADBBCCDCEEBBCDECDD*AACAECBAEAD","c":"01001000001010110001101010010000010000011001100000"},{"id":548,"n":"Marcos Antonio de Araujo Ribeiro","t":"Turma 4","a":"DBEACECBADBECEAECABDACBEAAACBCBBEDCECDABDCBDCDCDED","c":"01001001100101000000111100010000011000000010100100"},{"id":1269,"n":"Vitória Morais de Oliveira","t":"Turma 1","a":"DCBCCBBACDDAAAAEECCEAACCCBDCADACECECDCBDBBDBBAAEAC","c":"00011000001010001101100011011101000001100000000000"},{"id":1376,"n":"Yuri Alves Olegario","t":"Turma 2","a":"DAECACBADECDCADDECBBDDDEBCBAAAAEEDAEEBDADBBCCDBCBA","c":"00010100010000111100000100101000010000010010100011"},{"id":1241,"n":"Maria Eduarda do Nascimento Bonfim","t":"Turma 2","a":"CBEBCADDBCCCAACEECCEDBEDCAECAEED*AEAABBBADAAEBBDCE","c":"01001010000010001101000010011010000100101000000100"},{"id":1276,"n":"Rayssa Soares da Costa","t":"Turma 3","a":"ABCCBCABDBCBBEBDAEADDBBBEDCCAAABDCBEADBDADBBECCCEA","c":"11010101000001010000001000011000000000101010010001"},{"id":1243,"n":"Sabena Ifeoma da Silva Ibe","t":"Turma 2","a":"ABACCBDEBADBCEADCACEDAEBCCBCBEADECBBABCBBACAEBBACA","c":"11111010001001010001000010110000000000000100000001"},{"id":1245,"n":"Ana Alice da Silva Reis","t":"Turma 2","a":"ABABCADBADCCAEACADECED-DBABABBCEDECBAABBCDDABCDDDE","c":"11101011100011000000000000100000001000100000010100"},{"id":1281,"n":"Julia Vitoria Bueno da Silva Ferreira","t":"Turma 3","a":"AACCCBDDCEDDCEEE*DDEDCDBADCDAEDDCCCDCDCAD*DBCADCCE","c":"10011010011001000011010000001000001000010000100000"},{"id":1255,"n":"Maria Eduarda Oliveira Ribeiro","t":"Turma 2","a":"AEBCCBDABECEBEBCECDDBBBCBACDCEABDCCDCDBBAEDCEBDCDB","c":"10011010010101001110001000000000001000101000000000"},{"id":1313,"n":"Matheus de Souza Basilio Lopes","t":"Turma 4","a":"ABBCBBDDCCDDBCCBCCBDECAECDABCEBBEDEBADBCAEDACBAAAA","c":"11010010001000000100010110000000010000101000100001"},{"id":1382,"n":"Vitória Gomes","t":"Turma 1","a":"DCBCCBBAADDCAEACADCEDCACCDECBDEBDCDEADBBEBACBCDADE","c":"00011000101011000001010010010110000000100000010000"},{"id":1327,"n":"Wendy Rosiani Cussi Loza","t":"Turma 4","a":"ABCECBAABBDDAEAAECDDDBDACABACEAEECEEAABDCCEACABECA","c":"11001000001011001110000010100000000000100000100001"},{"id":1297,"n":"Isaac Mendonça Santos Neres","t":"Turma 3","a":"ABBCCADDEBAACEBCADDEDABCCABACABABABDCDCBACAABBEBAC","c":"11011010000001000011001010100000000000001000001000"},{"id":1308,"n":"Lucas de Jesus Paulo Sousa","t":"Turma 4","a":"CDCCACADBECDABBDEDBDAEABCDBECAAEEECCCDAAACABEBBDDB","c":"00010100010010011000100010100000001000011000000100"},{"id":1222,"n":"Milena Oliveira dos Santos","t":"Turma 1","a":"BBACDCEDBACBDAADCBBBDCEDDABECDEBDCBAABDEDBCECDBCBD","c":"01110100000000010000010000100110000100000001100010"},{"id":1236,"n":"Bruno de Melo","t":"Turma 3","a":"DEEEBBEABACDCAECACCCEDADCBEEBDCEADCCECEDCAABECEABC","c":"00000000000000000100000011000100111001000100011010"},{"id":1386,"n":"Esther Sophia da Silva","t":"Turma 1","a":"AABABDBDEAADAEEDECAADDDCCCDCEBEDDCCDCEBDDDCCCBCCCB","c":"10000000000011011100000010010010001000100000100000"},{"id":1385,"n":"Luiz Guilherme da Silva","t":"Turma 4","a":"BDACEABECCDBAACCECCDDADDBADECBACBCEDCBBCCEDADAECBA","c":"00110000001010001100000000000001000000100000001011"},{"id":1238,"n":"Keyson Neri de Carvalho","t":"Turma 1","a":"BEADBEADCADCCEBADDADDADBDABA*BBDCDACACAECEBCDAEDBC","c":"00100000001001000000000000100000010001000010001110"}]};
+
+const NQ = DATA.totalQuestoes;
+const LETRAS = ['A','B','C','D','E'];
+const discDeQ = [];
+DATA.disciplinas.forEach(d => { for (let q = d.ini; q <= d.fim; q++) discDeQ[q - 1] = d.nome; });
+const TURMAS = [...new Set(DATA.alunos.map(a => a.t))].sort();
+const curto = n => n.split(' ')[0];
+
+/* faixas proporcionais ao total de questões (mesma régua do Modelo 1: 70/50/30%) */
+const FX = [
+  { id:'avancado', rot:'Avançado',  min:.70, cor:'#16713a' },
+  { id:'adequado', rot:'Adequado',  min:.50, cor:'#4a9a4f' },
+  { id:'basico',   rot:'Básico',    min:.30, cor:'#c88a00' },
+  { id:'critico',  rot:'Crítico',   min:0,   cor:'#d81f26' }
+];
+const faixaDe = p => FX.find(f => p / 100 >= f.min);
+
+function cont(str, ini, fim) { let n = 0; for (let i = (ini || 1) - 1; i < (fim || NQ); i++) if (str[i] === '1') n++; return n; }
+const pct = (x, y) => y ? (x / y) * 100 : 0;
+const f1 = x => x.toFixed(1).replace('.', ',');
+const corPct = p => p >= 80 ? '#16713a' : p >= 60 ? '#4a9a4f' : p >= 50 ? '#c8a415' : p >= 40 ? '#e8842a' : p >= 20 ? '#d81f26' : '#8e1015';
+const classePct = p => p >= 60 ? 'p-alto' : p >= 40 ? 'p-medio' : 'p-baixo';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+const FAIXAS_NOTA = []; for (let i = 0; i < 10; i++) FAIXAS_NOTA.push({ min:i, max:i+1, rot:i+' a '+(i+1) });
+
+const estado = { turma:'', disc:'', faixa:'', nome:'' };
+const graficos = {};
+function discAtual(){ return DATA.disciplinas.find(d => d.nome === estado.disc) || null; }
+function faixaQ(){ const d = discAtual(); return d ? [d.ini, d.fim] : [1, NQ]; }
+function metrica(a){ const [i,f] = faixaQ(); const ac = cont(a.c,i,f), tot = f-i+1; return { ac, tot, pc: pct(ac,tot), nota:(ac/tot)*10 }; }
+function alunosFiltrados(){
+  return DATA.alunos.filter(a =>
+    (!estado.turma || a.t === estado.turma) &&
+    (!estado.nome  || a.n.toLowerCase().includes(estado.nome)) &&
+    (!estado.faixa || faixaDe(metrica(a).pc).id === estado.faixa));
+}
+const alunosDaTurma = t => DATA.alunos.filter(a => a.t === t);
+/* regularidade: desvio-padrão do % de acertos entre as disciplinas */
+function regularidade(a){
+  const ps = DATA.disciplinas.map(d => pct(cont(a.c,d.ini,d.fim), d.fim-d.ini+1));
+  const m = ps.reduce((s,v)=>s+v,0)/ps.length;
+  return Math.sqrt(ps.reduce((s,v)=>s+(v-m)**2,0)/ps.length);
+}
+
+function montarTopo(){
+  document.getElementById('topoMeta').innerHTML = [
+    ['Alunos avaliados', DATA.alunos.length], ['Questões', NQ],
+    ['Turmas', TURMAS.length], ['Disciplinas', DATA.disciplinas.length]
+  ].map(([r,v]) => `<div class="chip">${r} <b>${v}</b></div>`).join('');
+}
+
+function montarFiltros(){
+  const st = document.getElementById('fTurma');
+  TURMAS.forEach(t => st.insertAdjacentHTML('beforeend', `<option value="${esc(t)}">${esc(t)}</option>`));
+  const sd = document.getElementById('fDisc');
+  DATA.disciplinas.forEach(d => sd.insertAdjacentHTML('beforeend', `<option value="${esc(d.nome)}">${esc(d.nome)} (${d.fim-d.ini+1} questões)</option>`));
+  const sf = document.getElementById('fFaixa');
+  FX.forEach(f => sf.insertAdjacentHTML('beforeend', `<option value="${f.id}">${f.rot}</option>`));
+  st.onchange = e => { estado.turma = e.target.value; render(); };
+  sd.onchange = e => { estado.disc  = e.target.value; render(); };
+  sf.onchange = e => { estado.faixa = e.target.value; render(); };
+  let t; document.getElementById('fNome').oninput = e => {
+    clearTimeout(t); const v = e.target.value.trim().toLowerCase();
+    t = setTimeout(() => { estado.nome = v; render(); }, 180);
+  };
+  document.getElementById('btnLimpar').onclick = () => {
+    estado.turma = estado.disc = estado.faixa = estado.nome = '';
+    st.value = ''; sd.value = ''; sf.value = ''; document.getElementById('fNome').value = '';
+    render();
+  };
+}
+
+function renderKpis(al){
+  const el = document.getElementById('kpis');
+  if (!al.length){ el.innerHTML = '<div class="kpi"><div class="rot">Sem resultados</div><div class="val">0</div><div class="sub">Ajuste os filtros</div></div>'; return; }
+  const ms = al.map(metrica);
+  const tot = ms[0].tot;
+  const acs = ms.map(m => m.ac).sort((a,b)=>a-b);
+  const mediaAc = acs.reduce((s,v)=>s+v,0)/acs.length;
+  const medianaAc = acs.length % 2 ? acs[(acs.length-1)/2] : (acs[acs.length/2-1]+acs[acs.length/2])/2;
+  const pcMedio = ms.reduce((s,m)=>s+m.pc,0)/ms.length;
+  const acima = ms.filter(m => m.ac > mediaAc).length;
+  const maxAc = acs[acs.length-1], minAc = acs[0];
+  const top = al.filter((a,i) => ms[i].ac === maxAc);
+  const rotulo = estado.disc || 'prova completa';
+
+  const dsc = DATA.disciplinas.map(d => ({ nome:d.nome, pc: pct(al.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0), (d.fim-d.ini+1)*al.length) })).sort((a,b)=>b.pc-a.pc);
+
+  el.innerHTML = [
+    ['neutro','Alunos no recorte', al.length, estado.turma || 'todas as turmas', 0],
+    ['','Nota média', `${f1(mediaAc)}/${tot}`, `acertos · ${rotulo}`, 0],
+    ['','Acertos médios', f1(pcMedio)+'%', `${f1(mediaAc)} de ${tot} questões`, 0],
+    ['neutro','Mediana', `${f1(medianaAc)}/${tot}`, 'metade da turma acima disso', 0],
+    ['ok','Acima da média', acima, `${f1(pct(acima,al.length))}% do recorte`, 0],
+    ['ok', top.length>1 ? 'Melhores alunos' : 'Melhor aluno', top.slice(0,3).map(a=>curto(a.n)).join(' · ') + (top.length>3?' +'+(top.length-3):''), `${maxAc}/${tot}${top.length===1?' · '+esc(top[0].t):' · '+top.length+' empatados'}`, 1],
+    ['at','Menor nota', `${minAc}/${tot}`, 'ponto de atenção', 0],
+    ['ok','Maior domínio', dsc[0].nome, `${f1(dsc[0].pc)}% de acerto`, 1],
+    ['','Disciplina crítica', dsc[dsc.length-1].nome, `${f1(dsc[dsc.length-1].pc)}% de acerto`, 1]
+  ].map(([c,r,v,s,txt]) => `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val${txt?' txt':''}">${esc(v)}</div><div class="sub">${s}</div></div>`).join('');
+}
+
+function renderFaixas(al){
+  const todos = DATA.alunos.filter(a => (!estado.turma || a.t === estado.turma) && (!estado.nome || a.n.toLowerCase().includes(estado.nome)));
+  const el = document.getElementById('faixas');
+  el.innerHTML = FX.map(f => {
+    const n = todos.filter(a => faixaDe(metrica(a).pc).id === f.id).length;
+    const lim = Math.round(f.min * 100);
+    const on = estado.faixa === f.id;
+    return `<div class="fx clic" role="button" tabindex="0" data-fx="${f.id}" style="border-top-color:${f.cor};${on?'background:'+f.cor+'12;border-color:'+f.cor:''}">
+      <div class="r" style="color:${f.cor}">${f.rot}</div>
+      <div class="q">${n}</div>
+      <div class="s">${f1(pct(n,todos.length||1))}% · a partir de ${lim}% de acerto</div></div>`;
+  }).join('');
+  el.querySelectorAll('[data-fx]').forEach(d => {
+    const go = () => { estado.faixa = estado.faixa === d.dataset.fx ? '' : d.dataset.fx; document.getElementById('fFaixa').value = estado.faixa; render(); };
+    d.onclick = go; d.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+const baseOpts = () => ({
+  responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+  scales:{ x:{ grid:{display:false}, ticks:{ color:'#5d646c' } },
+           y:{ beginAtZero:true, grid:{ color:'#d7dade' }, ticks:{ color:'#5d646c' } } }
+});
+function pintar(id, cfg){ if (graficos[id]) graficos[id].destroy(); graficos[id] = new Chart(document.getElementById(id), cfg); }
+
+function renderDist(al){
+  const ms = al.map(metrica);
+  const porFaixa = FAIXAS_NOTA.map(f => ms.filter(m => m.nota >= f.min && (m.nota < f.max || (f.max===10 && m.nota===10))).length);
+  document.getElementById('notaDist').textContent = `${al.length} alunos · ${estado.disc || 'prova completa'}`;
+  const o = baseOpts(); o.scales.y.title = { display:true, text:'alunos' };
+  o.plugins.tooltip = { callbacks:{ label: c => `${c.parsed.y} aluno(s) — ${f1(pct(c.parsed.y, al.length))}%` } };
+  pintar('cDist', { type:'bar', data:{ labels:FAIXAS_NOTA.map(f=>f.rot), datasets:[{ data:porFaixa, backgroundColor:FAIXAS_NOTA.map(f=>corPct(f.min*10)), borderRadius:2 }] }, options:o });
+}
+
+function renderTurmas(al){
+  const dados = TURMAS.map(t => { const g = al.filter(a=>a.t===t).map(metrica);
+    return { t, n:g.length, pc: g.length ? g.reduce((s,m)=>s+m.pc,0)/g.length : 0 }; }).filter(d=>d.n);
+  const o = baseOpts(); o.scales.y.max = 100; o.scales.y.title = { display:true, text:'% de acertos' };
+  o.plugins.tooltip = { callbacks:{ label: c => `${f1(c.parsed.y)}% · nota ${f1(c.parsed.y/10)} · ${dados[c.dataIndex].n} alunos` } };
+  pintar('cTurmas', { type:'bar', data:{ labels:dados.map(d=>`${d.t} (${d.n})`), datasets:[{ data:dados.map(d=>d.pc), backgroundColor:dados.map(d=>corPct(d.pc)), borderRadius:2 }] }, options:o });
+}
+
+function renderDisciplinas(al){
+  const linhas = DATA.disciplinas.map(d => {
+    const nq = d.fim-d.ini+1;
+    const ac = al.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0);
+    const gab = al.filter(a => cont(a.c,d.ini,d.fim) === nq).length;
+    return { nome:d.nome, nq, ac, poss:nq*al.length, gab, pc: pct(ac, nq*al.length) };
+  }).sort((a,b)=>b.pc-a.pc);
+  document.getElementById('notaDisc').textContent = `${al.length} alunos · ${NQ} questões no total`;
+  const o = baseOpts(); o.indexAxis = 'y';
+  o.scales = { x:{ beginAtZero:true, max:100, grid:{color:'#d7dade'}, ticks:{ color:'#5d646c', callback:v=>v+'%' } },
+               y:{ grid:{display:false}, ticks:{ color:'#5d646c', font:{size:11} } } };
+  o.plugins.tooltip = { callbacks:{ label: c => `${f1(c.parsed.x)}% — ${linhas[c.dataIndex].ac} de ${linhas[c.dataIndex].poss} acertos` } };
+  pintar('cDisc', { type:'bar', data:{ labels:linhas.map(l=>l.nome), datasets:[{ data:linhas.map(l=>l.pc), backgroundColor:linhas.map(l=>corPct(l.pc)), borderRadius:2 }] }, options:o });
+  document.querySelector('#tabDisc tbody').innerHTML = linhas.map(l => `
+    <tr><td class="nome">${esc(l.nome)}</td><td class="num">${l.nq}</td><td class="num">${l.ac}</td><td class="num">${l.poss}</td>
+    <td class="num"><span class="pill ${classePct(l.pc)}">${f1(l.pc)}%</span></td>
+    <td class="num">${l.gab}</td>
+    <td><div class="barra"><span style="width:${l.pc}%;background:${corPct(l.pc)}"></span></div></td></tr>`).join('');
+}
+
+function renderMatriz(al){
+  const ds = DATA.disciplinas;
+  const ts = TURMAS.filter(t => al.some(a => a.t === t));
+  document.querySelector('#matriz thead').innerHTML =
+    `<tr><th class="lat">Turma</th>${ds.map(d=>`<th>${esc(curto(d.nome))}</th>`).join('')}<th>Geral</th></tr>`;
+  const linha = (rot, grupo) => {
+    const cels = ds.map(d => { const p = pct(grupo.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0), (d.fim-d.ini+1)*grupo.length);
+      return `<td><span class="cel" style="background:${corPct(p)}" title="${esc(rot)} — ${esc(d.nome)}: ${f1(p)}%">${Math.round(p)}%</span></td>`; }).join('');
+    const g = pct(grupo.reduce((s,a)=>s+cont(a.c),0), NQ*grupo.length);
+    return `<tr><th class="lat">${esc(rot)} <span class="tag">${grupo.length}</span></th>${cels}<td><span class="cel" style="background:${corPct(g)}">${Math.round(g)}%</span></td></tr>`;
+  };
+  document.querySelector('#matriz tbody').innerHTML =
+    (ts.map(t => linha(t, al.filter(a=>a.t===t))).join('') + (ts.length>1 ? linha('Todas', al) : ''))
+    || '<tr><td class="vazio" colspan="11">Nenhum aluno no recorte atual.</td></tr>';
+}
+
+function statsQuestao(q, al){
+  let ac=0, brancos=0, duplas=0; const marc={};
+  al.forEach(a => { const l = a.a[q-1];
+    if (l === '-') brancos++; else if (l === '*') duplas++; else marc[l] = (marc[l]||0)+1;
+    if (a.c[q-1] === '1') ac++; });
+  const gab = DATA.gabarito[q-1];
+  const distr = Object.entries(marc).filter(([l])=>l!==gab).sort((x,y)=>y[1]-x[1])[0];
+  return { q, disc: discDeQ[q-1], gab, ac, brancos, duplas, marc, distr, pc: pct(ac, al.length||1) };
+}
+
+function renderQuestoes(al){
+  const [i0,i1] = faixaQ();
+  const linhas = []; for (let q=i0; q<=i1; q++) linhas.push(statsQuestao(q, al));
+  document.getElementById('notaQ').textContent = `${linhas.length} questões · base de ${al.length} alunos`;
+  const o = baseOpts(); o.scales.y.max = 100; o.scales.y.title = { display:true, text:'% de acertos' };
+  o.scales.x.ticks.font = { size:10 };
+  o.plugins.tooltip = { callbacks:{ title:c=>`Questão ${linhas[c[0].dataIndex].q} — ${linhas[c[0].dataIndex].disc}`,
+    label:c=>`${f1(c.parsed.y)}% · ${linhas[c.dataIndex].ac} de ${al.length} acertos · gabarito ${linhas[c.dataIndex].gab}` } };
+  o.onClick = (_, els) => { if (els.length) abrirQuestao(linhas[els[0].index].q); };
+  pintar('cQuest', { type:'bar', data:{ labels:linhas.map(l=>'Q'+l.q), datasets:[{ data:linhas.map(l=>l.pc), backgroundColor:linhas.map(l=>corPct(l.pc)), borderRadius:2 }] }, options:o });
+
+  const tb = document.querySelector('#tabQ tbody');
+  tb.innerHTML = linhas.slice().sort((a,b)=>a.pc-b.pc).map(l => `
+    <tr class="clic" tabindex="0" data-q="${l.q}"><td class="num"><b>${l.q}</b></td><td class="nome">${esc(l.disc)}</td>
+    <td class="ctr"><span class="tag">${l.gab}</span></td><td class="num">${l.ac}</td>
+    <td class="num"><span class="pill ${classePct(l.pc)}">${f1(l.pc)}%</span></td>
+    <td class="ctr">${l.distr ? `${l.distr[0]} <span class="tag">${l.distr[1]}</span>` : '—'}</td>
+    <td class="num">${l.brancos}</td><td class="num">${l.duplas}</td></tr>`).join('');
+  tb.querySelectorAll('[data-q]').forEach(tr => {
+    const go = () => abrirQuestao(+tr.dataset.q);
+    tr.onclick = go; tr.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function renderQuadrantes(al){
+  const el = document.getElementById('quadrantes');
+  if (al.length < 4){ el.innerHTML = '<div class="quad"><p class="desc">Recorte pequeno demais para separar em quadrantes.</p></div>'; return; }
+  const ms = al.map(a => ({ a, pc: metrica(a).pc, reg: regularidade(a) }));
+  const mPc  = ms.reduce((s,m)=>s+m.pc,0)/ms.length;
+  const mReg = ms.reduce((s,m)=>s+m.reg,0)/ms.length;
+  const defs = [
+    { t:'Consolidados',  d:'nota acima da média e desempenho parelho entre as disciplinas', cor:'#16713a', f:m => m.pc>=mPc  && m.reg<=mReg },
+    { t:'Especialistas', d:'nota alta, mas concentrada em poucas disciplinas',              cor:'#5b4a8a', f:m => m.pc>=mPc  && m.reg>mReg  },
+    { t:'Em construção', d:'nota abaixo da média, porém sem grandes buracos',               cor:'#c88a00', f:m => m.pc<mPc   && m.reg<=mReg },
+    { t:'Prioridade',    d:'nota abaixo da média e lacunas concentradas',                   cor:'#d81f26', f:m => m.pc<mPc   && m.reg>mReg  }
+  ];
+  el.innerHTML = defs.map(g => {
+    const membros = ms.filter(g.f).sort((x,y)=>y.pc-x.pc);
+    const tags = membros.map(m => `<span class="qtag" role="button" tabindex="0" data-n="${esc(m.a.n)}" style="border-color:${g.cor}55;color:${g.cor}" title="${esc(m.a.n)} — ${f1(m.pc)}%">${esc(curto(m.a.n))} ${esc(m.a.n.split(' ').slice(-1)[0])}</span>`).join('');
+    return `<div class="quad"><h3 style="color:${g.cor}">${g.t} <span class="tag">${membros.length}</span></h3>
+      <div class="desc">${g.d}</div><div class="nomes">${tags || '<span class="desc">Nenhum aluno neste quadrante.</span>'}</div></div>`;
+  }).join('');
+  el.querySelectorAll('[data-n]').forEach(s => {
+    const go = () => abrirPerfil(s.dataset.n);
+    s.onclick = go; s.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function renderGabaritaram(al){
+  const ds = estado.disc ? DATA.disciplinas.filter(d=>d.nome===estado.disc) : DATA.disciplinas;
+  const html = ds.map(d => {
+    const nq = d.fim-d.ini+1;
+    const g = al.filter(a => cont(a.c,d.ini,d.fim) === nq);
+    if (!g.length) return '';
+    return `<div class="gab-row"><div class="d">${esc(d.nome)}<br><span class="tag">${g.length} · ${nq}/${nq}</span></div>
+      <div class="n">${g.map(a=>`<span role="button" tabindex="0" data-n="${esc(a.n)}">${esc(a.n)}</span>`).join(' · ')}</div></div>`;
+  }).join('');
+  const el = document.getElementById('gabarita');
+  el.innerHTML = html || '<p class="vazio">Nenhum aluno gabaritou uma disciplina inteira neste recorte.</p>';
+  el.querySelectorAll('[data-n]').forEach(s => {
+    const go = () => abrirPerfil(s.dataset.n);
+    s.onclick = go; s.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function renderCalor(al){
+  const ds = DATA.disciplinas;
+  const lista = al.slice().sort((a,b)=>cont(b.c)-cont(a.c));
+  document.querySelector('#calor thead').innerHTML =
+    `<tr><th class="lat">Aluno</th>${ds.map(d=>`<th>${esc(curto(d.nome))}</th>`).join('')}<th>Geral</th></tr>`;
+  const tb = document.querySelector('#calor tbody');
+  tb.innerHTML = lista.map(a => {
+    const cels = ds.map(d => { const p = pct(cont(a.c,d.ini,d.fim), d.fim-d.ini+1);
+      return `<td><span class="cel" style="background:${corPct(p)}" title="${esc(a.n)} — ${esc(d.nome)}: ${f1(p)}%">${Math.round(p)}</span></td>`; }).join('');
+    const g = pct(cont(a.c), NQ);
+    return `<tr class="clic" tabindex="0" data-n="${esc(a.n)}"><th class="lat">${esc(a.n)}</th>${cels}<td><span class="cel" style="background:${corPct(g)}">${Math.round(g)}</span></td></tr>`;
+  }).join('') || '<tr><td class="vazio" colspan="11">Nenhum aluno no recorte atual.</td></tr>';
+  tb.querySelectorAll('[data-n]').forEach(tr => {
+    const go = () => abrirPerfil(tr.dataset.n);
+    tr.onclick = go; tr.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function renderRanking(al){
+  const ds = estado.disc ? DATA.disciplinas.filter(d=>d.nome===estado.disc) : DATA.disciplinas;
+  document.getElementById('rankHead').innerHTML =
+    `<th class="num">#</th><th>Aluno</th><th>Turma</th><th class="num">Acertos</th><th class="num">Erros</th><th class="num">Brancos</th><th class="num">Nota</th>`
+    + ds.map(d=>`<th class="ctr">${esc(curto(d.nome)).slice(0,5)}</th>`).join('')
+    + `<th class="ctr">Faixa</th><th>Desempenho</th>`;
+  const lista = al.map(a => ({ a, m: metrica(a) })).sort((x,y)=>y.m.ac-x.m.ac || x.a.n.localeCompare(y.a.n,'pt-BR'));
+  let pos=0, ant=null, i=0; lista.forEach(l => { i++; if (l.m.ac !== ant){ pos=i; ant=l.m.ac; } l.pos=pos; });
+  document.getElementById('notaRank').textContent = `${lista.length} alunos · ordenado por acertos em ${estado.disc || 'toda a prova'}`;
+  const tb = document.querySelector('#tabRank tbody');
+  if (!lista.length){ tb.innerHTML = `<tr><td class="vazio" colspan="${9+ds.length}">Nenhum aluno corresponde aos filtros.</td></tr>`; return; }
+  const [i0,i1] = faixaQ();
+  const medalha = p => p===1?'🥇 ':p===2?'🥈 ':p===3?'🥉 ':'';
+  tb.innerHTML = lista.map(l => {
+    let brancos=0; for (let q=i0;q<=i1;q++) if (l.a.a[q-1]==='-') brancos++;
+    const erros = l.m.tot - l.m.ac - brancos;
+    const fx = faixaDe(l.m.pc);
+    const cels = ds.map(d => { const ac = cont(l.a.c,d.ini,d.fim), nq = d.fim-d.ini+1;
+      return `<td class="ctr" style="color:${corPct(pct(ac,nq))};font-weight:600">${ac}/${nq}</td>`; }).join('');
+    return `<tr class="clic" tabindex="0" data-n="${esc(l.a.n)}">
+      <td class="num"><span class="pos ${l.pos<=3?'top':''}">${medalha(l.pos)}${l.pos}</span></td>
+      <td class="nome">${esc(l.a.n)}</td><td><span class="tag">${esc(l.a.t)}</span></td>
+      <td class="num">${l.m.ac}</td><td class="num">${erros}</td><td class="num">${brancos}</td>
+      <td class="num"><span class="pill ${classePct(l.m.pc)}">${f1(l.m.nota)}</span></td>
+      ${cels}
+      <td class="ctr"><span class="tag" style="color:${fx.cor};border-color:${fx.cor}55">${fx.rot}</span></td>
+      <td><div class="barra"><span style="width:${l.m.pc}%;background:${corPct(l.m.pc)}"></span></div></td></tr>`;
+  }).join('');
+  tb.querySelectorAll('[data-n]').forEach(tr => {
+    const go = () => abrirPerfil(tr.dataset.n);
+    tr.onclick = go; tr.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+}
+
+function renderInsights(al){
+  const el = document.getElementById('insights');
+  if (al.length < 2){ el.innerHTML = '<div class="ins info"><h3>Dados insuficientes</h3><p>Selecione ao menos dois alunos para gerar a leitura pedagógica.</p></div>'; return; }
+  const ds = DATA.disciplinas.map(d => ({ nome:d.nome, pc: pct(al.reduce((s,a)=>s+cont(a.c,d.ini,d.fim),0), (d.fim-d.ini+1)*al.length) })).sort((a,b)=>a.pc-b.pc);
+  const [i0,i1] = faixaQ();
+  const qs = []; for (let q=i0;q<=i1;q++) qs.push(statsQuestao(q, al));
+  qs.sort((a,b)=>a.pc-b.pc);
+  const criticas = qs.filter(x=>x.pc<30);
+  const turmas = TURMAS.map(t => { const g = al.filter(a=>a.t===t).map(metrica);
+    return { t, n:g.length, pc: g.length ? g.reduce((s,m)=>s+m.pc,0)/g.length : null }; }).filter(x=>x.pc!==null).sort((a,b)=>b.pc-a.pc);
+  const ms = al.map(metrica);
+  const pcMedio = ms.reduce((s,m)=>s+m.pc,0)/ms.length;
+  const cards = [];
+  cards.push({ c:'', t:'Disciplina mais frágil', p:`${ds[0].nome} registra ${f1(ds[0].pc)}% de acertos, o menor índice entre as ${DATA.disciplinas.length} disciplinas. Em seguida vêm ${ds[1].nome} (${f1(ds[1].pc)}%) e ${ds[2].nome} (${f1(ds[2].pc)}%).` });
+  cards.push({ c:'bom', t:'Maior domínio', p:`${ds[ds.length-1].nome} lidera com ${f1(ds[ds.length-1].pc)}%, seguida por ${ds[ds.length-2].nome} (${f1(ds[ds.length-2].pc)}%).` });
+  cards.push({ c:'', t:'Questões de maior dificuldade', p: criticas.length
+    ? `${criticas.length} questão(ões) ficaram abaixo de 30% de acerto. As mais críticas: ${qs.slice(0,3).map(x=>`Q${x.q} (${f1(x.pc)}%, ${x.disc})`).join('; ')}.`
+    : `Nenhuma questão ficou abaixo de 30%. A mais difícil foi a Q${qs[0].q} (${f1(qs[0].pc)}%, ${qs[0].disc}).` });
+  const armadilha = qs.filter(x => x.distr && x.distr[1] > x.ac).sort((a,b)=>b.distr[1]-a.distr[1])[0];
+  if (armadilha) cards.push({ c:'at', t:'Distrator mais eficaz', p:`Na Q${armadilha.q} (${armadilha.disc}), a alternativa ${armadilha.distr[0]} atraiu ${armadilha.distr[1]} alunos contra ${armadilha.ac} que acertaram o gabarito ${armadilha.gab}. Vale revisar a concepção que leva a esse erro.` });
+  if (turmas.length > 1) cards.push({ c:'info', t:'Dispersão entre turmas', p:`${turmas[0].t} está à frente com ${f1(turmas[0].pc)}% e ${turmas[turmas.length-1].t} fecha com ${f1(turmas[turmas.length-1].pc)}% — amplitude de ${f1(turmas[0].pc-turmas[turmas.length-1].pc)} pontos percentuais.` });
+  const criticos = ms.filter(m => faixaDe(m.pc).id === 'critico').length;
+  cards.push({ c: criticos ? '' : 'bom', t:'Alunos em atenção', p:`${criticos} aluno(s) na faixa Crítica (abaixo de 30% de acerto). A média do grupo é de ${f1(pcMedio)}%, equivalente à nota ${f1(pcMedio/10)}.` });
+  const irregulares = al.map(a=>({a,r:regularidade(a)})).sort((x,y)=>y.r-x.r).slice(0,3);
+  cards.push({ c:'info', t:'Desempenho mais irregular', p:`${irregulares.map(x=>curto(x.a.n)).join(', ')} concentram os maiores contrastes entre disciplinas. São candidatos naturais a reforço direcionado em vez de revisão geral.` });
+  el.innerHTML = cards.map(c => `<div class="ins ${c.c}"><h3>${c.t}</h3><p>${c.p}</p></div>`).join('');
+}
+
+/* ---------- perfil individual ---------- */
+function abrirPerfil(nome){
+  const a = DATA.alunos.find(x => x.n === nome); if (!a) return;
+  const turmaAl = alunosDaTurma(a.t);
+  const acertos = cont(a.c), pc = pct(acertos, NQ);
+  let brancos=0, duplas=0;
+  for (let q=0;q<NQ;q++){ if (a.a[q]==='-') brancos++; if (a.a[q]==='*') duplas++; }
+  const ordGeral = DATA.alunos.slice().sort((x,y)=>cont(y.c)-cont(x.c));
+  const posGeral = ordGeral.findIndex(x=>cont(x.c)===acertos)+1;
+  const ordTurma = turmaAl.slice().sort((x,y)=>cont(y.c)-cont(x.c));
+  const posTurma = ordTurma.findIndex(x=>cont(x.c)===acertos)+1;
+  const fx = faixaDe(pc);
+
+  document.getElementById('mNome').textContent = a.n;
+  document.getElementById('mSub').textContent = `${a.t} · matrícula ${a.id} · ${NQ} questões`;
+  document.getElementById('mKpis').innerHTML = [
+    ['','Nota', f1(pc/10), 'escala 0–10', 0],
+    ['','Acertos', `${acertos}/${NQ}`, f1(pc)+'% da prova', 0],
+    ['neutro','Posição geral', `${posGeral}º`, `entre ${DATA.alunos.length} alunos`, 0],
+    ['neutro','Posição na turma', `${posTurma}º`, `entre ${turmaAl.length} da ${a.t}`, 0],
+    ['at','Erros', NQ-acertos-brancos, `${brancos} em branco · ${duplas} dupla(s)`, 0],
+    ['ok','Faixa', fx.rot, 'classificação de desempenho', 1]
+  ].map(([c,r,v,s,txt]) => `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val${txt?' txt':''}">${v}</div><div class="sub">${s}</div></div>`).join('');
+
+  const linhas = DATA.disciplinas.map(d => {
+    const nq = d.fim-d.ini+1, ac = cont(a.c,d.ini,d.fim);
+    const mt = pct(turmaAl.reduce((s,x)=>s+cont(x.c,d.ini,d.fim),0), nq*turmaAl.length);
+    const mg = pct(DATA.alunos.reduce((s,x)=>s+cont(x.c,d.ini,d.fim),0), nq*DATA.alunos.length);
+    return { nome:d.nome, nq, ac, pc: pct(ac,nq), mt, mg };
+  });
+  document.querySelector('#mTab tbody').innerHTML = linhas.map(l => {
+    const dif = l.pc - l.mt;
+    return `<tr><td class="nome">${esc(l.nome)}</td><td class="num">${l.ac}/${l.nq}</td>
+      <td class="num"><span class="pill ${classePct(l.pc)}">${f1(l.pc)}%</span></td>
+      <td class="num">${f1(l.mt)}%</td><td class="num">${f1(l.mg)}%</td>
+      <td class="num" style="color:${dif>=0?'var(--verde)':'var(--vermelho)'};font-weight:700">${dif>=0?'+':''}${f1(dif)}</td></tr>`;
+  }).join('');
+
+  pintar('cAluno', { type:'radar',
+    data:{ labels: linhas.map(l=>curto(l.nome)), datasets:[
+      { label:curto(a.n), data:linhas.map(l=>l.pc), borderColor:'#d81f26', backgroundColor:'rgba(216,31,38,.16)', pointBackgroundColor:'#d81f26', borderWidth:2 },
+      { label:'Média da turma', data:linhas.map(l=>l.mt), borderColor:'#101010', backgroundColor:'rgba(16,16,16,.06)', pointBackgroundColor:'#101010', borderWidth:1.5, borderDash:[4,3] }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ r:{ min:0, max:100, ticks:{ stepSize:25, color:'#8a9099', font:{size:9}, backdropColor:'transparent' },
+                   grid:{ color:'#d7dade' }, angleLines:{ color:'#d7dade' }, pointLabels:{ color:'#5d646c', font:{size:10} } } },
+      plugins:{ legend:{ labels:{ color:'#5d646c', boxWidth:12, font:{size:11} } },
+                tooltip:{ callbacks:{ label:c=>`${c.dataset.label}: ${f1(c.parsed.r)}%` } } } } });
+
+  const gq = document.getElementById('mQ');
+  gq.innerHTML = Array.from({length:NQ}, (_,i) => {
+    const marc = a.a[i], gab = DATA.gabarito[i];
+    const cls = marc==='-'?'v':marc==='*'?'d':(a.c[i]==='1'?'c':'e');
+    const rot = marc==='-'?'—':marc==='*'?'2×':marc;
+    const tt  = marc==='*'?'dupla marcação, questão anulada':discDeQ[i];
+    return `<div class="q ${cls}" role="button" tabindex="0" data-q="${i+1}" title="Q${i+1} — ${esc(tt)}">${i+1}<small>${rot} / ${gab}</small></div>`;
+  }).join('');
+  gq.querySelectorAll('[data-q]').forEach(d => {
+    const go = () => abrirQuestao(+d.dataset.q);
+    d.onclick = go; d.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+
+  abrirModal('modal'); document.getElementById('mFechar').focus();
+}
+
+/* ---------- detalhe da questão ---------- */
+function abrirQuestao(q){
+  const al = alunosFiltrados(); if (!al.length) return;
+  const s = statsQuestao(q, al);
+  document.getElementById('qNome').textContent = `Questão ${q}`;
+  document.getElementById('qSub').textContent = `${s.disc} · gabarito ${s.gab} · base de ${al.length} alunos no recorte atual`;
+  document.getElementById('qKpis').innerHTML = [
+    ['','Acerto', f1(s.pc)+'%', `${s.ac} de ${al.length} alunos`],
+    ['neutro','Gabarito', s.gab, 'alternativa correta'],
+    ['at','Distrator dominante', s.distr ? s.distr[0] : '—', s.distr ? `${s.distr[1]} aluno(s) · ${f1(pct(s.distr[1],al.length))}%` : 'sem erro concentrado'],
+    ['neutro','Em branco / duplas', `${s.brancos} / ${s.duplas}`, 'marcações inválidas']
+  ].map(([c,r,v,sb]) => `<div class="kpi ${c}"><div class="rot">${r}</div><div class="val">${v}</div><div class="sub">${sb}</div></div>`).join('');
+
+  document.getElementById('qAlt').innerHTML = LETRAS.map(l => {
+    const n = s.marc[l] || 0;
+    return `<div class="alt ${l===s.gab?'ok':''}"><div class="l" style="color:${l===s.gab?'var(--verde)':'var(--texto-2)'}">${l}</div>
+      <div class="n">${n} · ${f1(pct(n,al.length))}%</div>
+      <div class="barra" style="margin-top:6px;min-width:0"><span style="width:${pct(n,al.length)}%;background:${l===s.gab?'var(--verde)':'var(--vermelho)'}"></span></div></div>`;
+  }).join('');
+
+  document.querySelector('#qTurmas tbody').innerHTML = TURMAS.map(t => {
+    const g = al.filter(a=>a.t===t); if (!g.length) return '';
+    const ac = g.filter(a=>a.c[q-1]==='1').length, p = pct(ac,g.length);
+    return `<tr><td>${esc(t)}</td><td class="num">${ac}</td><td class="num">${g.length}</td>
+      <td class="num"><span class="pill ${classePct(p)}">${f1(p)}%</span></td>
+      <td><div class="barra"><span style="width:${p}%;background:${corPct(p)}"></span></div></td></tr>`;
+  }).join('');
+
+  abrirModal('modalQ'); document.getElementById('qFechar').focus();
+}
+
+function abrirModal(id){ document.getElementById(id).classList.add('on'); document.body.style.overflow='hidden'; }
+function fecharModais(){ document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on')); document.body.style.overflow=''; }
+
+function render(){
+  const al = alunosFiltrados();
+  renderKpis(al); renderFaixas(al);
+  if (al.length){ renderDist(al); renderTurmas(al); renderDisciplinas(al); renderQuestoes(al); }
+  renderMatriz(al); renderQuadrantes(al); renderGabaritaram(al);
+  renderCalor(al); renderRanking(al); renderInsights(al);
+}
+
+montarTopo(); montarFiltros(); render();
+document.getElementById('mFechar').onclick = fecharModais;
+document.getElementById('qFechar').onclick = fecharModais;
+['modal','modalQ'].forEach(id => document.getElementById(id).onclick = e => { if (e.target.id===id) fecharModais(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') fecharModais(); });
+</script>
+</body>
+</html>
